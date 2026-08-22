@@ -1,0 +1,21 @@
+[tools]
+uv = "latest"
+
+[env]
+_.python.venv = { path = ".venv", create = false }
+
+[tasks.sync]
+description = "Install pinned tools and dependencies"
+run = "uv sync"
+
+[tasks.render]
+description = "Regenerate build/ from the roster"
+run = "uv run place render"
+
+[tasks.check]
+description = "Fail if build/ is stale"
+run = "uv run place check"
+
+[tasks.reservations]
+description = "Addresses to reserve by hand in the Nokia app"
+run = "uv run place reservations"

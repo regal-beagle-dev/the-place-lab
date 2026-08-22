@@ -5,7 +5,7 @@ requires-python = ">=3.14"
 dependencies = ["pyyaml>=6"]
 
 [project.scripts]
-render = "tools.render:main"
+place = "tools.render:main"
 
 [build-system]
 requires = ["hatchling"]
