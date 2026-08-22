@@ -1,0 +1,105 @@
+lab:
+  admin_user: curtis
+  network:
+    cidr: 192.168.18.0/24
+    gateway: 192.168.18.1
+
+nodes:
+  - name: kuat
+    kind: appliance
+    role: switch
+    hardware: UniFi USW-Flex-2.5G-8
+    address: 192.168.18.200
+    mac: 74:f9:2c:ee:6a:bd
+    rack: U6
+    status: racked
+
+  - name: byss
+    kind: physical
+    role: storage
+    hardware: Tower · i7-4790K · 16GB · 870 SSD 1TB + 2x 4TB · GTX 1070
+    os: Ubuntu 26.04 LTS
+    address: 192.168.18.201
+    mac: 30:5a:3a:7c:50:58
+    interface: eno1
+    switch_port: P2
+    location: outside-rack
+    status: reachable
+
+  - name: kejim
+    kind: physical
+    role: control-plane
+    hardware: HP EliteDesk 800 G2 · i5 · 16GB
+    os: null
+    address: 192.168.18.202
+    mac: null
+    interface: null
+    switch_port: P1
+    rack: U4
+    status: racked
+
+  - name: endor
+    kind: physical
+    role: hypervisor
+    hardware: System76 Lemur Pro · i7-10510U · 16GB
+    os: Ubuntu 26.04 LTS
+    address: 192.168.18.203
+    mac: 00:e0:4c:68:21:46
+    interface: enx00e04c682146
+    switch_port: P3
+    location: outside-rack
+    status: verified
+
+  - name: byss01
+    kind: virtual
+    role: worker
+    hypervisor: byss
+    address: 192.168.18.211
+    status: planned
+
+  - name: byss02
+    kind: virtual
+    role: worker
+    hypervisor: byss
+    address: 192.168.18.212
+    status: planned
+
+  - name: endor01
+    kind: virtual
+    role: worker
+    hypervisor: endor
+    address: 192.168.18.213
+    status: planned
+
+  - name: endor02
+    kind: virtual
+    role: worker
+    hypervisor: endor
+    address: 192.168.18.214
+    status: planned
+
+  - name: yavin
+    kind: foreign
+    role: desktop
+    hardware: MacBook
+    status: in-use
+
+  - name: bespin
+    kind: foreign
+    role: desktop
+    hardware: Windows gaming PC
+    status: in-use
+
+  - name: dagobah
+    kind: foreign
+    role: storage
+    hardware: Synology NAS
+    status: in-use
+
+  - name: ps5
+    kind: foreign
+    role: console
+    hardware: PlayStation 5, 2.4GHz wifi
+    address: 192.168.18.70
+    mac: f4:64:12:42:ef:dc
+    status: in-use
