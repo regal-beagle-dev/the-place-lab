@@ -1,12 +1,19 @@
 import sys
 from pathlib import Path
 
-from ..datatypes import Roster
+import yaml
+
+from ..datatypes import AnsibleHost, Roster
 from ..paths import Paths
 
 
+class _NoAliases(yaml.SafeDumper):
+    def ignore_aliases(self, data):
+        return True
+
+
 class NodeRenderer:
-    TARGETS = ("ssh_config",)
+    TARGETS = ("ssh_config", "hosts.yml")
     COMMANDS = ("render", "check", "reservations")
 
     def __init__(self, roster: Roster | None = None, build: Path | None = None) -> None:
@@ -14,7 +21,7 @@ class NodeRenderer:
         self.build_dir = build or Paths.BUILD
 
     def build(self, target: str) -> str:
-        return getattr(self, f"build_{target}")()
+        return getattr(self, f"build_{target.replace('.', '_')}")()
 
     def build_ssh_config(self) -> str:
         return "".join(
@@ -23,6 +30,21 @@ class NodeRenderer:
             f"    User {self.roster.admin_user}\n\n"
             for node in self.roster.reachable
         )
+
+    def build_hosts_yml(self) -> str:
+        groups: dict[str, dict] = {}
+        for node in self.roster.managed:
+            group = str(node.role).replace("-", "_")
+            groups.setdefault(group, {}).setdefault("hosts", {})[node.name] = (
+                AnsibleHost.of(node).as_dict()
+            )
+        inventory = {
+            "all": {
+                "vars": {"ansible_user": self.roster.admin_user},
+                "children": groups,
+            }
+        }
+        return yaml.dump(inventory, Dumper=_NoAliases, sort_keys=False)
 
     def is_current(self, target: str) -> bool:
         path = self.build_dir / target
@@ -39,7 +61,6 @@ class NodeRenderer:
             sys.exit(f"stale, run `place render`: {', '.join(stale)}")
 
     def reservations(self) -> None:
-        """The Nokia has no API; this is the list to enter by hand in its app."""
         for node in self.roster.reservable:
             print(f"{node.name:<8} {node.address:<16} {node.mac or '?'}")
 
