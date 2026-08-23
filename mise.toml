@@ -3,6 +3,7 @@ uv = "latest"
 
 [env]
 _.python.venv = { path = ".venv", create = false }
+ANSIBLE_CONFIG = "{{config_root}}/ansible/ansible.cfg"
 
 [tasks.sync]
 description = "Install pinned tools and dependencies"
@@ -19,3 +20,25 @@ run = "uv run place check"
 [tasks.reservations]
 description = "Addresses to reserve by hand in the Nokia app"
 run = "uv run place reservations"
+
+[tasks.bootstrap]
+description = "First contact with a node; needs -K for the sudo password"
+dir = "{{config_root}}/ansible"
+run = "uv run ansible-playbook playbooks/bootstrap.yml {{arg(name='args', var=true, default='')}}"
+
+[tasks.ping]
+description = "Can Ansible reach every node?"
+dir = "{{config_root}}/ansible"
+run = "uv run ansible all -m ping"
+
+[tasks.plan]
+description = "Dry run: what would change on the fleet, and how"
+depends = ["check"]
+dir = "{{config_root}}/ansible"
+run = "uv run ansible-playbook playbooks/site.yml --check --diff {{arg(name='args', var=true, default='')}}"
+
+[tasks.converge]
+description = "Apply the fleet definition; twice in a row must report zero changed"
+depends = ["check"]
+dir = "{{config_root}}/ansible"
+run = "uv run ansible-playbook playbooks/site.yml {{arg(name='args', var=true, default='')}}"

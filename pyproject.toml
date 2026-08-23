@@ -2,7 +2,7 @@
 name = "the-place-lab"
 version = "0.1.0"
 requires-python = ">=3.14"
-dependencies = ["pyyaml>=6"]
+dependencies = ["pyyaml>=6", "ansible-core>=2.18"]
 
 [project.scripts]
 place = "tools.render:main"
