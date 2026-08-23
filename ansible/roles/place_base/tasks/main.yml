@@ -64,8 +64,11 @@
     mode: "0644"
   notify: Restart logind
 
-- name: Keep sshd enabled across reboots
+# Ubuntu 26.04 socket-activates ssh: ssh.service is disabled by design and
+# ssh.socket does the listening. Enabling the service too would put both on
+# port 22.
+- name: Keep ssh reachable across reboots
   ansible.builtin.systemd_service:
-    name: ssh
+    name: ssh.socket
     enabled: true
     state: started
