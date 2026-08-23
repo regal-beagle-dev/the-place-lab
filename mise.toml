@@ -24,7 +24,7 @@ run = "uv run place reservations"
 [tasks.bootstrap]
 description = "First contact with a node; needs -K for the sudo password"
 dir = "{{config_root}}/ansible"
-run = "uv run ansible-playbook playbooks/bootstrap.yml {{arg(name='args', var=true, default='')}}"
+run = "uv run ansible-playbook playbooks/bootstrap.yml"
 
 [tasks.ping]
 description = "Can Ansible reach every node?"
@@ -35,10 +35,10 @@ run = "uv run ansible all -m ping"
 description = "Dry run: what would change on the fleet, and how"
 depends = ["check"]
 dir = "{{config_root}}/ansible"
-run = "uv run ansible-playbook playbooks/site.yml --check --diff {{arg(name='args', var=true, default='')}}"
+run = "uv run ansible-playbook playbooks/site.yml --check --diff"
 
 [tasks.converge]
 description = "Apply the fleet definition; twice in a row must report zero changed"
 depends = ["check"]
 dir = "{{config_root}}/ansible"
-run = "uv run ansible-playbook playbooks/site.yml {{arg(name='args', var=true, default='')}}"
+run = "uv run ansible-playbook playbooks/site.yml"
