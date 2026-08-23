@@ -30,13 +30,13 @@ nodes:
     kind: physical
     role: control-plane
     hardware: HP EliteDesk 800 G2 · i5 · 16GB
-    os: null
+    os: Ubuntu 26.04 LTS
     address: 192.168.18.202
-    mac: null
-    interface: null
+    mac: c8:d3:ff:a1:cb:a6
+    interface: eno1
     switch_port: P1
     rack: U4
-    status: racked
+    status: reachable
 
   - name: endor
     kind: physical
@@ -80,13 +80,13 @@ nodes:
 
   - name: yavin
     kind: foreign
-    role: desktop
+    role: workstation
     hardware: MacBook
     status: in-use
 
   - name: bespin
     kind: foreign
-    role: desktop
+    role: workstation
     hardware: Windows gaming PC
     status: in-use
 
