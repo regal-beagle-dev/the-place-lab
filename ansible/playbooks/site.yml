@@ -6,3 +6,9 @@
     - place_base
     - place_net
     - place_shell
+
+- name: Converge storage
+  hosts: storage
+  become: true
+  roles:
+    - place_storage

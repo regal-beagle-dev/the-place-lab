@@ -1,0 +1,28 @@
+---
+- name: Require the pool to exist
+  ansible.builtin.command: zpool list -H -o name tank
+  register: place_pool
+  changed_when: false
+
+- name: Create the datasets
+  ansible.builtin.command: "zfs create {{ item }}"
+  args:
+    creates: "/{{ item }}"
+  loop: "{{ place_datasets }}"
+
+- name: Cap the ARC at boot
+  ansible.builtin.template:
+    src: zfs.conf.j2
+    dest: /etc/modprobe.d/zfs.conf
+    mode: "0644"
+  notify: Rebuild initramfs
+
+- name: Read the running ARC cap
+  ansible.builtin.slurp:
+    src: /sys/module/zfs/parameters/zfs_arc_max
+  register: place_arc_running
+
+- name: Cap the ARC now
+  ansible.builtin.shell: "echo {{ place_zfs_arc_max }} > /sys/module/zfs/parameters/zfs_arc_max"
+  when: (place_arc_running.content | b64decode | trim | int) != (place_zfs_arc_max | int)
+  changed_when: true

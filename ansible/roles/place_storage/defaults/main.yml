@@ -1,0 +1,9 @@
+---
+# 8GiB. ZFS defaults the ARC to half of RAM, which on a 15GiB box is 7.5GiB it
+# takes without asking - and it is slow to hand back when a VM wants it.
+place_zfs_arc_max: 8589934592
+
+place_datasets:
+  - tank/k8s
+  - tank/media
+  - tank/hangar
