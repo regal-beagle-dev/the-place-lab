@@ -1,0 +1,6 @@
+---
+place_role_color:
+  storage: green
+  control-plane: red
+  hypervisor: cyan
+  worker: yellow
