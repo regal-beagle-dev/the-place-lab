@@ -1,0 +1,8 @@
+export PLACE_NODE="{{ inventory_hostname }}"
+export PLACE_ROLE="{{ place_role }}"
+export PLACE_COLOR="{{ place_role_color.get(place_role, 'white') }}"
+
+for _place_f in env.sh aliases.sh functions.sh prompt.sh; do
+    [ -r "/etc/place/shell/$_place_f" ] && . "/etc/place/shell/$_place_f"
+done
+unset _place_f

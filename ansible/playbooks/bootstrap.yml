@@ -1,0 +1,27 @@
+---
+- name: First contact
+  hosts: all
+  become: true
+  tasks:
+    - name: Allow the admin account to sudo without a password
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/place
+        content: "{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        mode: "0440"
+        validate: visudo -cf %s
+
+    - name: Require key-based ssh
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/10-place.conf
+        content: |
+          PasswordAuthentication no
+          KbdInteractiveAuthentication no
+          PermitRootLogin no
+        mode: "0644"
+      notify: Reload sshd
+
+  handlers:
+    - name: Reload sshd
+      ansible.builtin.systemd_service:
+        name: ssh
+        state: reloaded

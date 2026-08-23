@@ -1,0 +1,19 @@
+---
+- name: Ensure the shell directory
+  ansible.builtin.file:
+    path: /etc/place/shell
+    state: directory
+    mode: "0755"
+
+- name: Deploy the shared shell
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../shell/{{ item }}"
+    dest: "/etc/place/shell/{{ item }}"
+    mode: "0644"
+  loop: [env.sh, aliases.sh, functions.sh, prompt.sh]
+
+- name: Install the profile entry point
+  ansible.builtin.template:
+    src: place.sh.j2
+    dest: /etc/profile.d/place.sh
+    mode: "0644"

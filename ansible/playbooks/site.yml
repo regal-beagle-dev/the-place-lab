@@ -1,0 +1,8 @@
+---
+- name: Converge the fleet
+  hosts: all
+  become: true
+  roles:
+    - place_base
+    - place_net
+    - place_shell
