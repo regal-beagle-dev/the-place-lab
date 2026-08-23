@@ -1,0 +1,35 @@
+---
+- name: Refuse to configure a node with no known interface
+  ansible.builtin.assert:
+    that: place_interface is truthy
+    fail_msg: "{{ inventory_hostname }} has no interface in inventory/nodes.yml"
+
+# DHCP plus a reservation, not a static address: the Nokia's pool spans the
+# whole subnet and its LAN page is read-only, so the reservation is what keeps
+# the address ours. `place reservations` prints what to enter.
+- name: Configure the wired interface
+  ansible.builtin.template:
+    src: netplan.yaml.j2
+    dest: /etc/netplan/10-place.yaml
+    mode: "0600"
+  notify: Apply netplan
+
+- name: Remove the installer's netplan so ownership is unambiguous
+  ansible.builtin.file:
+    path: /etc/netplan/00-installer-config.yaml
+    state: absent
+  notify: Apply netplan
+
+# Dracut's catch-all otherwise claims the radio and tries to DHCP it forever.
+# Matches nothing on a node without wireless.
+- name: Leave wireless unmanaged
+  ansible.builtin.copy:
+    dest: /etc/systemd/network/05-unmanaged-wifi.network
+    content: |
+      [Match]
+      Type=wlan
+
+      [Link]
+      Unmanaged=yes
+    mode: "0644"
+  notify: Restart networkd
