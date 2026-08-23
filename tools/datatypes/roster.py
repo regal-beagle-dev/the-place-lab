@@ -46,5 +46,13 @@ class Roster:
         return [n for n in self.of_kind(Kind.PHYSICAL) if n.status is not Status.PLANNED]
 
     @property
+    def addressed(self) -> Sequence[Node]:
+        return [
+            n
+            for n in self.of_kind(Kind.PHYSICAL, Kind.APPLIANCE, Kind.VIRTUAL)
+            if n.address and n.status is not Status.PLANNED
+        ]
+
+    @property
     def reservable(self) -> Sequence[Node]:
         return self.of_kind(Kind.PHYSICAL, Kind.APPLIANCE)

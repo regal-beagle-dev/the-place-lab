@@ -13,7 +13,7 @@ class _NoAliases(yaml.SafeDumper):
 
 
 class NodeRenderer:
-    TARGETS = ("ssh_config", "hosts.yml")
+    TARGETS = ("ssh_config", "hosts", "hosts.yml")
     COMMANDS = ("render", "check", "reservations")
 
     def __init__(self, roster: Roster | None = None, build: Path | None = None) -> None:
@@ -29,6 +29,12 @@ class NodeRenderer:
             f"    HostName {node.address}\n"
             f"    User {self.roster.admin_user}\n\n"
             for node in self.roster.reachable
+        )
+
+    def build_hosts(self) -> str:
+        width = max(len(n.address) for n in self.roster.addressed)
+        return "".join(
+            f"{node.address:<{width}}  {node.name}\n" for node in self.roster.addressed
         )
 
     def build_hosts_yml(self) -> str:
