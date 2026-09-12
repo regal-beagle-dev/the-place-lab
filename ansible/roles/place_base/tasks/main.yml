@@ -5,7 +5,7 @@
 
 - name: Install baseline packages
   ansible.builtin.apt:
-    name: [chrony, curl, git, htop, jq, vim]
+    name: [chrony, curl, git, htop, jq, tmux, vim]
     state: present
     update_cache: true
     cache_valid_time: 3600

@@ -12,6 +12,12 @@
     mode: "0644"
   loop: [env.sh, aliases.sh, functions.sh, prompt.sh]
 
+- name: Configure tmux fleet-wide
+  ansible.builtin.template:
+    src: tmux.conf.j2
+    dest: /etc/tmux.conf
+    mode: "0644"
+
 - name: Install the profile entry point
   ansible.builtin.template:
     src: place.sh.j2

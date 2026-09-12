@@ -24,7 +24,7 @@ nodes:
     interface: eno1
     switch_port: P2
     location: outside-rack
-    status: reachable
+    status: verified
 
   - name: kejim
     kind: physical
@@ -36,7 +36,7 @@ nodes:
     interface: eno1
     switch_port: P1
     rack: U4
-    status: reachable
+    status: verified
 
   - name: endor
     kind: physical
