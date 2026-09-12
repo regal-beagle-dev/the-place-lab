@@ -1,0 +1,26 @@
+---
+backup_repository: b2:place-lab-primary-bkt01:byss
+backup_path: /tank/photos
+backup_on_calendar: "03:00"
+
+# Immich regenerates thumbnails and transcodes from the originals it keeps, so
+# paying to store them offsite buys back nothing a job queue cannot.
+backup_excludes:
+  - /tank/photos/thumbs
+  - /tank/photos/encoded-video
+
+backup_keep:
+  last: 3
+  daily: 7
+  weekly: 5
+  monthly: 12
+
+# KiB/s, zero for uncapped. The first full upload runs for hours and will
+# otherwise take the household's connection with it.
+backup_upload_limit: 0
+
+backup_environment:
+  RESTIC_REPOSITORY: "{{ backup_repository }}"
+  RESTIC_PASSWORD: "{{ backup_restic_password }}"
+  B2_ACCOUNT_ID: "{{ backup_b2_account_id }}"
+  B2_ACCOUNT_KEY: "{{ backup_b2_account_key }}"

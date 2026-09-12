@@ -1,0 +1,54 @@
+---
+- name: Install restic
+  ansible.builtin.apt:
+    name: restic
+    state: present
+
+- name: Create the restic configuration directory
+  ansible.builtin.file:
+    path: /etc/restic
+    state: directory
+    mode: "0700"
+
+- name: Configure the repository credentials
+  ansible.builtin.template:
+    src: env.j2
+    dest: /etc/restic/env
+    mode: "0600"
+
+- name: Install the restic wrapper
+  ansible.builtin.copy:
+    src: place-restic
+    dest: /usr/local/bin/place-restic
+    mode: "0755"
+
+- name: Look for an existing repository
+  ansible.builtin.command: restic cat config
+  environment: "{{ backup_environment }}"
+  register: backup_repo
+  changed_when: false
+  failed_when: false
+
+- name: Initialise the repository
+  ansible.builtin.command: restic init
+  environment: "{{ backup_environment }}"
+  when: backup_repo.rc | default(1) != 0
+
+- name: Install the backup unit
+  ansible.builtin.template:
+    src: backup.service.j2
+    dest: /etc/systemd/system/backup.service
+    mode: "0644"
+
+- name: Schedule the backup
+  ansible.builtin.template:
+    src: backup.timer.j2
+    dest: /etc/systemd/system/backup.timer
+    mode: "0644"
+
+- name: Enable the backup timer
+  ansible.builtin.systemd_service:
+    name: backup.timer
+    enabled: true
+    state: started
+    daemon_reload: true
