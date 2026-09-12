@@ -1,0 +1,9 @@
+---
+immich_version: v3.2.0
+immich_root: /opt/immich
+immich_library: /tank/photos
+immich_timezone: America/Chicago
+
+# Postgres does 8K page writes, which a 1M recordsize would amplify 128x, so
+# the database stays off tank and on the root SSD.
+immich_database: /var/lib/immich/postgres
