@@ -1,5 +1,5 @@
 ---
-- name: Converge the fleet
+- name: Apply the fleet
   hosts: all
   become: true
   roles:
@@ -7,7 +7,7 @@
     - place_net
     - place_shell
 
-- name: Converge storage
+- name: Apply storage
   hosts: storage
   become: true
   roles:
