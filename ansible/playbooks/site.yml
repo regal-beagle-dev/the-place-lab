@@ -7,8 +7,9 @@
     - place_net
     - place_shell
 
-- name: Apply storage
+- name: Apply the storage node
   hosts: storage
   become: true
   roles:
     - place_storage
+    - place_docker
