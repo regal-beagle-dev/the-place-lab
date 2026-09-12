@@ -14,3 +14,10 @@
     - storage
     - docker
     - immich
+
+- name: Apply the control plane
+  hosts: control_plane
+  become: true
+  roles:
+    - docker
+    - proxy

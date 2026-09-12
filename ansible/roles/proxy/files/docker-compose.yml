@@ -1,0 +1,23 @@
+name: proxy
+
+services:
+  traefik:
+    container_name: proxy_traefik
+    image: traefik:${TRAEFIK_VERSION}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./acme:/acme
+    env_file:
+      - .env
+    restart: always
+
+  splash:
+    container_name: proxy_splash
+    image: nginx:alpine
+    volumes:
+      - ./splash:/usr/share/nginx/html:ro
+    restart: always
