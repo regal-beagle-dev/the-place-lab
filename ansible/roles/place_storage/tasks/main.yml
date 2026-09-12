@@ -5,10 +5,12 @@
   changed_when: false
 
 - name: Create the datasets
-  ansible.builtin.command: "zfs create {{ item }}"
-  args:
-    creates: "/{{ item }}"
+  ansible.builtin.command:
+    cmd: "zfs create {% for key, value in (item.properties | default({})).items() %}-o {{ key }}={{ value }} {% endfor %}{{ item.name }}"
+    creates: "/{{ item.name }}"
   loop: "{{ place_datasets }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Cap the ARC at boot
   ansible.builtin.template:
