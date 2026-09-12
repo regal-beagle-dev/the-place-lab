@@ -3,13 +3,13 @@
   hosts: all
   become: true
   roles:
-    - place_base
-    - place_net
-    - place_shell
+    - base
+    - net
+    - shell
 
 - name: Apply the storage node
   hosts: storage
   become: true
   roles:
-    - place_storage
-    - place_docker
+    - storage
+    - docker
