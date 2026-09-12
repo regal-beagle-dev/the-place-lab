@@ -1,14 +1,23 @@
 ---
-- name: Converge the fleet
+- name: Apply the fleet
   hosts: all
   become: true
   roles:
-    - place_base
-    - place_net
-    - place_shell
+    - base
+    - net
+    - shell
 
-- name: Converge storage
+- name: Apply the storage node
   hosts: storage
   become: true
   roles:
-    - place_storage
+    - storage
+    - docker
+    - immich
+
+- name: Apply the control plane
+  hosts: control_plane
+  become: true
+  roles:
+    - docker
+    - proxy

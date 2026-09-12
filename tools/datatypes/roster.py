@@ -30,6 +30,10 @@ class Roster:
     def admin_user(self) -> str:
         return self.lab.admin_user
 
+    @property
+    def domain(self) -> str:
+        return self.lab.domain
+
     def of_kind(self, *kinds: Kind) -> Sequence[Node]:
         return [n for n in self.nodes if n.kind in kinds]
 
