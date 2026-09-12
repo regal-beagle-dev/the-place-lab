@@ -1,14 +1,13 @@
 ---
 - name: Require the pool to exist
   ansible.builtin.command: zpool list -H -o name tank
-  register: place_pool
   changed_when: false
 
 - name: Create the datasets
   ansible.builtin.command:
     cmd: "zfs create {% for key, value in (item.properties | default({})).items() %}-o {{ key }}={{ value }} {% endfor %}{{ item.name }}"
     creates: "/{{ item.name }}"
-  loop: "{{ place_datasets }}"
+  loop: "{{ storage_datasets }}"
   loop_control:
     label: "{{ item.name }}"
 
@@ -22,9 +21,9 @@
 - name: Read the running ARC cap
   ansible.builtin.slurp:
     src: /sys/module/zfs/parameters/zfs_arc_max
-  register: place_arc_running
+  register: storage_arc_running
 
 - name: Cap the ARC now
-  ansible.builtin.shell: "echo {{ place_zfs_arc_max }} > /sys/module/zfs/parameters/zfs_arc_max"
-  when: (place_arc_running.content | b64decode | trim | int) != (place_zfs_arc_max | int)
+  ansible.builtin.shell: "echo {{ storage_zfs_arc_max }} > /sys/module/zfs/parameters/zfs_arc_max"
+  when: (storage_arc_running.content | b64decode | trim | int) != (storage_zfs_arc_max | int)
   changed_when: true
