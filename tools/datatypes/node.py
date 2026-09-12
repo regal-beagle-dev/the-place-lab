@@ -2,14 +2,14 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-from ..enums import Kind, Status
+from ..enums import Kind, Role, Status
 
 
 @dataclass(frozen=True, slots=True)
 class Node:
     name: str
     kind: Kind
-    role: str
+    role: Role
     status: Status
     address: str | None = None
     mac: str | None = None
@@ -24,5 +24,10 @@ class Node:
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> "Node":
         return cls(
-            **{**data, "kind": Kind(data["kind"]), "status": Status(data["status"])}
+            **{
+                **data,
+                "kind": Kind(data["kind"]),
+                "role": Role(data["role"]),
+                "status": Status(data["status"]),
+            }
         )

@@ -1,0 +1,74 @@
+---
+- name: Set the hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name: [chrony, curl, git, htop, jq, tmux, vim]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Keep the clock honest
+  ansible.builtin.systemd_service:
+    name: chrony
+    enabled: true
+    state: started
+
+- name: Resolve every node by name without DNS
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} the place"
+    block: "{{ lookup('file', playbook_dir + '/../../build/hosts') }}"
+
+- name: Ensure the wait-online override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/systemd-networkd-wait-online.service.d
+    state: directory
+    mode: "0755"
+
+# Dracut ships zzzz-dracut-default.network, which matches every physical NIC
+# (Kind=!*, Type=!loopback) with DHCP=yes. Any NIC without carrier then holds
+# network-online.target for the full 120s timeout on every boot.
+- name: Wait only on this node's real interface
+  ansible.builtin.template:
+    src: wait-online.conf.j2
+    dest: /etc/systemd/system/systemd-networkd-wait-online.service.d/10-place.conf
+    mode: "0644"
+  notify: Reload systemd
+
+# Every lab node is a server. sleep.target reports "static" rather than
+# "disabled" - it has no [Install] section, so masking is the only way to make
+# it unreachable. Ignoring the lid is a no-op where there is no lid.
+- name: Make suspend unreachable
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    masked: true
+  loop: [sleep.target, suspend.target, hibernate.target, hybrid-sleep.target]
+
+- name: Ensure the logind override directory
+  ansible.builtin.file:
+    path: /etc/systemd/logind.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Ignore the lid switch
+  ansible.builtin.copy:
+    dest: /etc/systemd/logind.conf.d/10-place.conf
+    content: |
+      [Login]
+      HandleLidSwitch=ignore
+      HandleLidSwitchExternalPower=ignore
+      HandleLidSwitchDocked=ignore
+    mode: "0644"
+  notify: Restart logind
+
+# Ubuntu 26.04 socket-activates ssh: ssh.service is disabled by design and
+# ssh.socket does the listening. Enabling the service too would put both on
+# port 22.
+- name: Keep ssh reachable across reboots
+  ansible.builtin.systemd_service:
+    name: ssh.socket
+    enabled: true
+    state: started

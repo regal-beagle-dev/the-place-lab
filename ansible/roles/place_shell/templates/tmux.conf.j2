@@ -1,0 +1,33 @@
+# Prefix stays C-b.
+
+set -g mouse on
+set -g history-limit 50000
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -sg escape-time 10
+set -g default-terminal "tmux-256color"
+
+setw -g mode-keys vi
+bind -T copy-mode-vi v send -X begin-selection
+bind -T copy-mode-vi y send -X copy-selection-and-cancel
+
+# Splits that look like what they do. % and " still work.
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+bind r source-file /etc/tmux.conf \; display "reloaded"
+
+# Status bar carries the node's role colour, same signal as the prompt.
+set -g status-style "bg=default fg=white"
+set -g status-left "#[bg={{ place_role_color.get(place_role, 'white') }},fg=black,bold] {{ inventory_hostname }} #[default] "
+set -g status-left-length 30
+set -g status-right "#[fg=brightblack]#{session_name} · %H:%M "
+setw -g window-status-current-style "fg={{ place_role_color.get(place_role, 'white') }},bold"
+set -g pane-active-border-style "fg={{ place_role_color.get(place_role, 'white') }}"
+set -g pane-border-style "fg=brightblack"
