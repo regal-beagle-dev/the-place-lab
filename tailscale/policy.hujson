@@ -19,7 +19,18 @@
 	// Declaring a tag changes no traffic - it only says the tag exists and who
 	// may hand it out.
 	"tagOwners": {
-		"tag:prod": ["curtisim0@github"],
+		"tag:prod":    ["curtisim0@github"],
+		"tag:staging": ["curtisim0@github"],
+		"tag:lab":     ["curtisim0@github"],
+	},
+
+	// kejim advertises only .200-.207 - kuat, byss, kejim, endor. Approving it
+	// here means re-authing kejim never needs a manual click. The whole /24
+	// would route tailnet traffic to dagobah at .27 and defeat the tags above.
+	"autoApprovers": {
+		"routes": {
+			"192.168.18.200/29": ["tag:lab"],
+		},
 	},
 
 	// Define grants that govern access for users, groups, autogroups, tags,
@@ -32,6 +43,13 @@
 		// owner, so without this the nightly backup from cacao-production to
 		// dagobah stops the moment this lands.
 		{"src": ["tag:prod"], "dst": ["tag:prod"], "ip": ["*"]},
+
+		// Anyone with a login here reaches lab services, by tailnet address
+		{"src": ["autogroup:member"], "dst": ["tag:lab", "192.168.18.200/29"], "ip": ["*"]},
+
+		{"src": ["tag:lab"], "dst": ["tag:lab"], "ip": ["*"]},
+
+		// tag:staging appears as a source nowhere, so staging initiates nothing.
 	],
 
 	// Define postures that will be applied to all rules without any specific
@@ -75,5 +93,7 @@
 	"tests": [
 		{"src": "curtisim0@github", "accept": ["cacao-production:22", "dagobah:22"]},
 		{"src": "tag:prod", "accept": ["dagobah:22"]},
+		{"src": "tag:staging", "deny": ["dagobah:22", "cacao-production:22"]},
+		{"src": "tag:lab", "deny": ["dagobah:22", "cacao-production:22", "yavin:22"]},
 	],
 }
