@@ -6,6 +6,7 @@
     - base
     - net
     - shell
+    - tailscale
 
 - name: Apply the storage node
   hosts: storage

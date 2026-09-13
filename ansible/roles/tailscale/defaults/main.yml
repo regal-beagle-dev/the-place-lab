@@ -1,0 +1,5 @@
+---
+tailscale_tags: tag:lab
+
+# Only the subnet router advertises anything; see group_vars/control_plane.yml.
+tailscale_routes: []
