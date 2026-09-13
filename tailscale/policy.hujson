@@ -1,9 +1,19 @@
-// Example/default ACLs for unrestricted connections.
+// Tailnet access policy
 {
-	// Declare static groups of users. Use autogroups for all users or users with a specific role.
-	// "groups": {
-	//  	"group:example": ["alice@example.com", "bob@example.com"],
-	// },
+	// Invited family become autogroup:member, which
+	// will reach the lab and nothing else.
+	"groups": {
+		"group:owner": ["curtisim0@github"],
+	},
+
+	// Tailnet addresses, so the tests below can name machines. Tailscale does
+	// not resolve device names inside a policy file - only what is declared here.
+	"hosts": {
+		"cacao-production": "100.65.123.84",
+		"cacao-staging":    "100.95.16.42",
+		"dagobah":          "100.97.30.64",
+		"yavin":            "100.123.46.21",
+	},
 
 	// Define the tags which can be applied to devices and by which users.
 	// Declaring a tag changes no traffic - it only says the tag exists and who
@@ -15,13 +25,13 @@
 	// Define grants that govern access for users, groups, autogroups, tags,
 	// Tailscale IP addresses, and subnet ranges.
 	"grants": [
-		// Allow all connections.
-		// Comment this section out if you want to define specific restrictions.
-		{"src": ["*"], "dst": ["*"], "ip": ["*"]},
+		// my device reach everything.
+		{"src": ["group:owner"], "dst": ["*"], "ip": ["*"]},
 
-		// Allow users in "group:example" to access "tag:example", but only from
-		// devices that are running macOS and have enabled Tailscale client auto-updating.
-		// {"src": ["group:example"], "dst": ["tag:example"], "ip": ["*"], "srcPosture":["posture:autoUpdateMac"]},
+		// Client machines talk among themselves. Tagging strips a device's user
+		// owner, so without this the nightly backup from cacao-production to
+		// dagobah stops the moment this lands.
+		{"src": ["tag:prod"], "dst": ["tag:prod"], "ip": ["*"]},
 	],
 
 	// Define postures that will be applied to all rules without any specific
@@ -60,12 +70,10 @@
 		},
 	],
 
-	// Test access rules every time they're saved.
-	// "tests": [
-	//  	{
-	//  		"src": "alice@example.com",
-	//  		"accept": ["tag:example"],
-	//  		"deny": ["100.101.102.103:443"],
-	//  	},
-	// ],
+	// Validated on save, so a policy that would break the backup path or lock
+	// the owner out refuses to save at all.
+	"tests": [
+		{"src": "curtisim0@github", "accept": ["cacao-production:22", "dagobah:22"]},
+		{"src": "tag:prod", "accept": ["dagobah:22"]},
+	],
 }
