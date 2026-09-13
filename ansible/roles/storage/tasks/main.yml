@@ -16,6 +16,13 @@
     name: sanoid
     state: present
 
+# The package ships no /etc/sanoid; its defaults live in /usr/share/sanoid.
+- name: Ensure the sanoid configuration directory
+  ansible.builtin.file:
+    path: /etc/sanoid
+    state: directory
+    mode: "0755"
+
 - name: Set the snapshot policy
   ansible.builtin.template:
     src: sanoid.conf.j2
