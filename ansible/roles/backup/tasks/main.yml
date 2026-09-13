@@ -10,6 +10,12 @@
     state: directory
     mode: "0700"
 
+- name: Create the restic cache directory
+  ansible.builtin.file:
+    path: /var/cache/restic
+    state: directory
+    mode: "0700"
+
 - name: Configure the repository credentials
   ansible.builtin.template:
     src: env.j2
