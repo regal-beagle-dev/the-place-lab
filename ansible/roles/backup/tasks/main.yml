@@ -22,6 +22,12 @@
     dest: /etc/restic/env
     mode: "0600"
 
+- name: Install the database dump script
+  ansible.builtin.copy:
+    src: place-immich-dump
+    dest: /usr/local/bin/place-immich-dump
+    mode: "0755"
+
 - name: Install the restic wrapper
   ansible.builtin.copy:
     src: place-restic

@@ -19,6 +19,9 @@ backup_keep:
 # otherwise take the household's connection with it.
 backup_upload_limit: 0
 
+backup_database_container: immich_postgres
+backup_database_keep: 14
+
 backup_environment:
   RESTIC_CACHE_DIR: /var/cache/restic
   RESTIC_REPOSITORY: "{{ backup_repository }}"
