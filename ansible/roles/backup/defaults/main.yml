@@ -1,7 +1,10 @@
 ---
 backup_repository: b2:place-lab-primary-bkt01:byss
 backup_path: /tank/photos
-backup_on_calendar: "03:00"
+# Named timezone rather than a UTC hour, so this stays 5am local across the
+# daylight-saving boundary - and stays after Immich's 2am dump, which is also
+# Chicago-based, all year.
+backup_on_calendar: "*-*-* 05:00:00 America/Chicago"
 
 # Immich regenerates thumbnails and transcodes from the originals it keeps, so
 # paying to store them offsite buys back nothing a job queue cannot.
