@@ -1,0 +1,7 @@
+#!/bin/sh
+# restic, with the repository and credentials already loaded. Root only,
+# because /etc/restic/env is.
+set -a
+. /etc/restic/env
+set +a
+exec restic "$@"

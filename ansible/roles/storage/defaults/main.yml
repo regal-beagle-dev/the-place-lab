@@ -11,3 +11,10 @@ storage_datasets:
   - name: tank/photos
     properties:
       recordsize: 1M
+    snapshot: true
+
+# sanoid
+storage_snapshot_policy:
+  hourly: 24
+  daily: 30
+  monthly: 3

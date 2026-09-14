@@ -11,6 +11,30 @@
   loop_control:
     label: "{{ item.name }}"
 
+- name: Install sanoid
+  ansible.builtin.apt:
+    name: sanoid
+    state: present
+
+# The package ships no /etc/sanoid; its defaults live in /usr/share/sanoid.
+- name: Ensure the sanoid configuration directory
+  ansible.builtin.file:
+    path: /etc/sanoid
+    state: directory
+    mode: "0755"
+
+- name: Set the snapshot policy
+  ansible.builtin.template:
+    src: sanoid.conf.j2
+    dest: /etc/sanoid/sanoid.conf
+    mode: "0644"
+
+- name: Enable snapshots
+  ansible.builtin.systemd_service:
+    name: sanoid.timer
+    enabled: true
+    state: started
+
 - name: Cap the ARC at boot
   ansible.builtin.template:
     src: zfs.conf.j2
