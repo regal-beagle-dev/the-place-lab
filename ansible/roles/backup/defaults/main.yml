@@ -15,10 +15,8 @@ backup_keep:
   weekly: 5
   monthly: 12
 
-# KiB/s, zero for uncapped. The first full upload runs for hours and will
-# otherwise take the household's connection with it.
-backup_upload_limit: 0
 
+backup_upload_limit: 2000
 backup_database_container: immich_postgres
 backup_database_keep: 14
 
