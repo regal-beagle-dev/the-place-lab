@@ -12,3 +12,4 @@ ExecStartPre=/usr/local/bin/place-dump-check {{ backup_path }}/backups {{ backup
 ExecStart=/usr/bin/restic backup {{ backup_path }}{% for path in backup_excludes %} --exclude {{ path }}{% endfor %}{% if backup_upload_limit %} --limit-upload {{ backup_upload_limit }}{% endif %}
 
 ExecStart=/usr/bin/restic forget --prune{% for period, count in backup_keep.items() %} --keep-{{ period }} {{ count }}{% endfor %}
+ExecStartPost=/usr/local/bin/place-backup-mark
