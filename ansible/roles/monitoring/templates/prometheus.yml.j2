@@ -13,3 +13,39 @@ scrape_configs:
         labels:
           instance: {{ host }}
 {% endfor %}
+
+  - job_name: ping
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+{% for probe in monitoring_ping_probes %}
+      - targets: ['{{ probe.address }}']
+        labels:
+          name: {{ probe.name }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  - job_name: http
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+{% for probe in monitoring_http_probes %}
+      - targets: ['{{ probe.url }}']
+        labels:
+          name: {{ probe.name }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115

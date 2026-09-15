@@ -11,6 +11,8 @@
   loop:
     - { path: "{{ monitoring_root }}", owner: root, group: root }
     - { path: "{{ monitoring_root }}/provisioning/datasources", owner: root, group: root }
+    - { path: "{{ monitoring_root }}/provisioning/dashboards", owner: root, group: root }
+    - { path: "{{ monitoring_root }}/dashboards", owner: root, group: root }
     - { path: "{{ monitoring_root }}/prometheus", owner: "65534", group: "65534" }
     - { path: "{{ monitoring_root }}/grafana", owner: "472", group: "0" }
   loop_control:
@@ -36,6 +38,20 @@
     dest: "{{ monitoring_root }}/provisioning/datasources/prometheus.yml"
     mode: "0644"
   notify: Restart monitoring
+
+- name: Provision Grafana's dashboards
+  ansible.builtin.copy:
+    src: dashboard-provider.yml
+    dest: "{{ monitoring_root }}/provisioning/dashboards/place.yml"
+    mode: "0644"
+  notify: Restart monitoring
+
+# Grafana polls this directory, so dashboard edits land without a restart.
+- name: Install the dashboards
+  ansible.builtin.copy:
+    src: dashboards/
+    dest: "{{ monitoring_root }}/dashboards/"
+    mode: "0644"
 
 - name: Configure the stack
   ansible.builtin.template:
