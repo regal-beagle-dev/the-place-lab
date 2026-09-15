@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly internet speed measurement
+
+[Timer]
+OnCalendar={{ speedtest_on_calendar }}
+# Every scheduled job on earth fires on the hour; Ookla's servers notice.
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target
