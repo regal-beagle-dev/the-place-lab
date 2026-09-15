@@ -1,0 +1,60 @@
+---
+# Both images run as fixed non-root users and crash-loop against a data
+# directory they cannot write: Prometheus as nobody, Grafana as 472.
+- name: Create the monitoring directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "0755"
+  loop:
+    - { path: "{{ monitoring_root }}", owner: root, group: root }
+    - { path: "{{ monitoring_root }}/provisioning/datasources", owner: root, group: root }
+    - { path: "{{ monitoring_root }}/prometheus", owner: "65534", group: "65534" }
+    - { path: "{{ monitoring_root }}/grafana", owner: "472", group: "0" }
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Install the compose file
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: "{{ monitoring_root }}/docker-compose.yml"
+    mode: "0644"
+  notify: Restart monitoring
+
+- name: Point Prometheus at every node
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: "{{ monitoring_root }}/prometheus.yml"
+    mode: "0644"
+  notify: Restart monitoring
+
+- name: Provision Grafana's data source
+  ansible.builtin.copy:
+    src: datasource.yml
+    dest: "{{ monitoring_root }}/provisioning/datasources/prometheus.yml"
+    mode: "0644"
+  notify: Restart monitoring
+
+- name: Configure the stack
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ monitoring_root }}/.env"
+    group: docker
+    mode: "0640"
+  notify: Restart monitoring
+
+- name: Install the monitoring unit
+  ansible.builtin.template:
+    src: monitoring.service.j2
+    dest: /etc/systemd/system/monitoring.service
+    mode: "0644"
+  notify: Restart monitoring
+
+- name: Enable monitoring
+  ansible.builtin.systemd_service:
+    name: monitoring
+    enabled: true
+    state: started
+    daemon_reload: true
