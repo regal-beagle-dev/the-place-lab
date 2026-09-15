@@ -1,0 +1,18 @@
+#!/bin/sh
+# Refuse to ship photos without matching metadata. Immich writes these dumps
+# itself on its own schedule; this only asserts one is recent, so the feature
+# going quietly off is a failed backup rather than a silent gap.
+set -eu
+
+dir="${1:?directory}"
+hours="${2:-48}"
+
+newest=$(find "$dir" -maxdepth 1 -name 'immich-db-backup-*.sql.gz' \
+                     -mmin "-$((hours * 60))" -print -quit 2>/dev/null || true)
+
+if [ -z "$newest" ]; then
+    echo "no Immich database dump newer than ${hours}h in $dir" >&2
+    exit 1
+fi
+
+echo "database dump present: $(basename "$newest")"
