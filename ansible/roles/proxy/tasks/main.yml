@@ -8,11 +8,18 @@
     - "{{ proxy_root }}"
     - "{{ proxy_root }}/acme"
     - "{{ proxy_root }}/splash"
+    - "{{ proxy_root }}/splash/icons"
 
 - name: Deploy the landing page
   ansible.builtin.template:
     src: "{{ playbook_dir }}/../../splash/index.html.j2"
     dest: "{{ proxy_root }}/splash/index.html"
+    mode: "0644"
+
+- name: Deploy the service emblems
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../splash/icons/"
+    dest: "{{ proxy_root }}/splash/icons/"
     mode: "0644"
 
 - name: Install the compose file

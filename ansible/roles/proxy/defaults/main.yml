@@ -14,3 +14,7 @@ proxy_services:
   # than a loopback one. The address comes from the roster, not from here.
   - name: photos
     url: "http://{{ hostvars['byss'].ansible_host }}:2283"
+  # Grafana is in its own compose project, so Traefik cannot reach it by
+  # container name the way it reaches splash; it goes through the host port.
+  - name: grafana
+    url: "http://{{ hostvars['kejim'].ansible_host }}:3000"
