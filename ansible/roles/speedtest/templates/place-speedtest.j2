@@ -6,7 +6,9 @@ set -euo pipefail
 
 out=/var/lib/prometheus/node-exporter/speedtest.prom
 
-{{ speedtest_root }}/speedtest --accept-license --accept-gdpr --format=json \
+# Bound to the LAN IPv4 address. This host has no IPv6 route out, and Ookla,
+# unlike most clients, does not fall back to IPv4 when a server's IPv6 fails.
+{{ speedtest_root }}/speedtest --accept-license --accept-gdpr --ip={{ ansible_host }} --format=json \
   | jq -r 'select(.type == "result") |
       "speedtest_download_bits_per_second \(.download.bandwidth * 8)",
       "speedtest_upload_bits_per_second \(.upload.bandwidth * 8)",
