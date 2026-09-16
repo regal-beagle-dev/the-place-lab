@@ -28,6 +28,12 @@
     dest: /usr/local/bin/place-dump-check
     mode: "0755"
 
+- name: Install the backup success marker
+  ansible.builtin.copy:
+    src: place-backup-mark
+    dest: /usr/local/bin/place-backup-mark
+    mode: "0755"
+
 - name: Install the restic wrapper
   ansible.builtin.copy:
     src: place-restic

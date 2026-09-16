@@ -1,0 +1,20 @@
+---
+monitoring_root: /opt/monitoring
+monitoring_prometheus_version: v3.14.0
+monitoring_grafana_version: 13.2.1
+monitoring_retention: 90d
+monitoring_blackbox_version: v0.28.0
+
+monitoring_ping_probes:
+  - name: gateway
+    address: "{{ place_gateway }}"
+  - name: cloudflare
+    address: 1.1.1.1
+
+monitoring_http_probes:
+  - name: home
+    url: "https://home.{{ place_domain }}"
+  - name: photos
+    url: "https://photos.{{ place_domain }}/api/server/ping"
+  - name: grafana
+    url: "https://grafana.{{ place_domain }}/api/health"

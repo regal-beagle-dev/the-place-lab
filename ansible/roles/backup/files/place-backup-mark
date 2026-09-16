@@ -1,0 +1,8 @@
+#!/bin/sh
+# Publishes the moment a backup succeeded through node_exporter's textfile
+# collector. systemd runs it only after every ExecStart has succeeded.
+set -eu
+
+out=/var/lib/prometheus/node-exporter/backup.prom
+echo "place_backup_last_success_timestamp_seconds $(date +%s)" > "$out.tmp"
+mv "$out.tmp" "$out"

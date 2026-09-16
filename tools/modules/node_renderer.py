@@ -49,6 +49,7 @@ class NodeRenderer:
                 "vars": {
                     "ansible_user": self.roster.admin_user,
                     "place_domain": self.roster.domain,
+                    "place_gateway": self.roster.gateway,
                 },
                 "children": groups,
             }

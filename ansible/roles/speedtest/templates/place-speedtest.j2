@@ -1,0 +1,22 @@
+#!/bin/bash
+# One Ookla speedtest, published through node_exporter's textfile collector.
+# A failed run leaves the previous file in place, so the timestamp going stale
+# is the signal.
+set -euo pipefail
+
+out=/var/lib/prometheus/node-exporter/speedtest.prom
+
+# Bound to the LAN IPv4 address. This host has no IPv6 route out, and Ookla,
+# unlike most clients, does not fall back to IPv4 when a server's IPv6 fails.
+{{ speedtest_root }}/speedtest --accept-license --accept-gdpr --ip={{ ansible_host }} --format=json \
+  | jq -r 'select(.type == "result") |
+      "speedtest_download_bits_per_second \(.download.bandwidth * 8)",
+      "speedtest_upload_bits_per_second \(.upload.bandwidth * 8)",
+      "speedtest_ping_seconds \(.ping.latency / 1000)",
+      "speedtest_jitter_seconds \(.ping.jitter / 1000)",
+      (if .packetLoss != null then "speedtest_packet_loss_ratio \(.packetLoss / 100)" else empty end),
+      "speedtest_last_success_timestamp_seconds \(now | floor)"' \
+  > "$out.tmp"
+
+test -s "$out.tmp"
+mv "$out.tmp" "$out"

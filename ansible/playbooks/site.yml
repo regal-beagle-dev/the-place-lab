@@ -7,6 +7,7 @@
     - net
     - shell
     - tailscale
+    - node_exporter
 
 - name: Apply the storage node
   hosts: storage
@@ -23,3 +24,5 @@
   roles:
     - docker
     - proxy
+    - monitoring
+    - speedtest

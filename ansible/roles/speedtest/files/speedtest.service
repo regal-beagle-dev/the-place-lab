@@ -1,0 +1,11 @@
+[Unit]
+Description=Measure the internet connection
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# The Ookla CLI records licence acceptance under HOME, which system units lack.
+Environment=HOME=/var/lib/speedtest
+StateDirectory=speedtest
+ExecStart=/usr/local/bin/place-speedtest
