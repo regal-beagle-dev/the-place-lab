@@ -9,15 +9,18 @@
 	// Tailnet addresses, so the tests below can name machines. Tailscale does
 	// not resolve device names inside a policy file - only what is declared here.
 	"hosts": {
-		"cacao-production": "100.65.123.84",
-		"cacao-staging":    "100.95.16.42",
-		"dagobah":          "100.97.30.64",
-		"yavin":            "100.123.46.21",
+		"blackwing-prod":    "100.65.123.84",
+		"blackwing-staging": "100.95.16.42",
+		"dagobah":           "100.97.30.64",
+		"yavin":             "100.123.46.21",
 	},
 
 	// Define the tags which can be applied to devices and by which users.
 	// Declaring a tag changes no traffic - it only says the tag exists and who
 	// may hand it out.
+	// tag:prod is for machines holding data that must stay separate from the
+	// lab. Nothing grants tag:lab or tag:staging a path to them, in either
+	// direction, so a compromised lab node cannot reach them at all.
 	"tagOwners": {
 		"tag:prod":    ["curtisim0@github"],
 		"tag:staging": ["curtisim0@github"],
@@ -40,7 +43,7 @@
 		{"src": ["group:owner"], "dst": ["*"], "ip": ["*"]},
 
 		// Client machines talk among themselves. Tagging strips a device's user
-		// owner, so without this the nightly backup from cacao-production to
+		// owner, so without this the nightly backup from blackwing-prod to
 		// dagobah stops the moment this lands.
 		{"src": ["tag:prod"], "dst": ["tag:prod"], "ip": ["*"]},
 
@@ -91,9 +94,9 @@
 	// Validated on save, so a policy that would break the backup path or lock
 	// the owner out refuses to save at all.
 	"tests": [
-		{"src": "curtisim0@github", "accept": ["cacao-production:22", "dagobah:22"]},
+		{"src": "curtisim0@github", "accept": ["blackwing-prod:22", "dagobah:22"]},
 		{"src": "tag:prod", "accept": ["dagobah:22"]},
-		{"src": "tag:staging", "deny": ["dagobah:22", "cacao-production:22"]},
-		{"src": "tag:lab", "deny": ["dagobah:22", "cacao-production:22", "yavin:22"]},
+		{"src": "tag:staging", "deny": ["dagobah:22", "blackwing-prod:22"]},
+		{"src": "tag:lab", "deny": ["dagobah:22", "blackwing-prod:22", "yavin:22"]},
 	],
 }
