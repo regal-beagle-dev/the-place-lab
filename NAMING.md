@@ -18,7 +18,7 @@ The rule below means a hostname tells you what a box is and where it physically 
 ## Already Reserved
 
 `yavin` primary laptop · `kashyyyk` work laptop · `kamino` iPhone · `naboo` wife's
-· `bespin` gaming PC · `dagobah` work NAS · `byss` `kejim` `endor`
+· `bespin` gaming PC · `dagobah` non-lab NAS · `byss` `kejim` `endor`
 `kuat` — the lab.
 
 ## Bench Names
