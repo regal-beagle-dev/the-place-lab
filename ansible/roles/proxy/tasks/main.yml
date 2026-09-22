@@ -1,0 +1,66 @@
+---
+- name: Create the proxy directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ proxy_root }}"
+    - "{{ proxy_root }}/acme"
+    - "{{ proxy_root }}/splash"
+    - "{{ proxy_root }}/splash/icons"
+
+- name: Deploy the landing page
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../../splash/index.html.j2"
+    dest: "{{ proxy_root }}/splash/index.html"
+    mode: "0644"
+
+- name: Deploy the service emblems
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../splash/icons/"
+    dest: "{{ proxy_root }}/splash/icons/"
+    mode: "0644"
+
+- name: Install the compose file
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: "{{ proxy_root }}/docker-compose.yml"
+    mode: "0644"
+  notify: Restart proxy
+
+- name: Configure Traefik
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: "{{ proxy_root }}/traefik.yml"
+    mode: "0644"
+  notify: Restart proxy
+
+- name: Define the routes
+  ansible.builtin.template:
+    src: dynamic.yml.j2
+    dest: "{{ proxy_root }}/dynamic.yml"
+    mode: "0644"
+  notify: Restart proxy
+
+- name: Configure the Cloudflare credentials
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ proxy_root }}/.env"
+    group: docker
+    mode: "0640"
+  notify: Restart proxy
+
+- name: Install the proxy unit
+  ansible.builtin.template:
+    src: proxy.service.j2
+    dest: /etc/systemd/system/proxy.service
+    mode: "0644"
+  notify: Restart proxy
+
+- name: Enable the proxy
+  ansible.builtin.systemd_service:
+    name: proxy
+    enabled: true
+    state: started
+    daemon_reload: true

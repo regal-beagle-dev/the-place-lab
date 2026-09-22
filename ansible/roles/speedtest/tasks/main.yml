@@ -1,0 +1,48 @@
+---
+- name: Create the speedtest directory
+  ansible.builtin.file:
+    path: "{{ speedtest_root }}"
+    state: directory
+    mode: "0755"
+
+- name: Fetch the Ookla speedtest CLI
+  ansible.builtin.get_url:
+    url: "https://install.speedtest.net/app/cli/ookla-speedtest-{{ speedtest_version }}-linux-x86_64.tgz"
+    dest: "{{ speedtest_root }}/speedtest.tgz"
+    checksum: "{{ speedtest_checksum }}"
+    mode: "0644"
+
+- name: Unpack the speedtest CLI
+  ansible.builtin.unarchive:
+    src: "{{ speedtest_root }}/speedtest.tgz"
+    dest: "{{ speedtest_root }}"
+    remote_src: true
+    include:
+      - speedtest
+    creates: "{{ speedtest_root }}/speedtest"
+
+- name: Install the speedtest collector
+  ansible.builtin.template:
+    src: place-speedtest.j2
+    dest: /usr/local/bin/place-speedtest
+    mode: "0755"
+
+- name: Install the speedtest unit
+  ansible.builtin.copy:
+    src: speedtest.service
+    dest: /etc/systemd/system/speedtest.service
+    mode: "0644"
+
+- name: Schedule the speedtest
+  ansible.builtin.template:
+    src: speedtest.timer.j2
+    dest: /etc/systemd/system/speedtest.timer
+    mode: "0644"
+  notify: Restart the speedtest timer
+
+- name: Enable the speedtest timer
+  ansible.builtin.systemd_service:
+    name: speedtest.timer
+    enabled: true
+    state: started
+    daemon_reload: true

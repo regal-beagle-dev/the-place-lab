@@ -37,7 +37,7 @@ depends = ["check"]
 dir = "{{config_root}}/ansible"
 run = "uv run ansible-playbook playbooks/site.yml --check --diff"
 
-[tasks.converge]
+[tasks.apply]
 description = "Apply the fleet definition; twice in a row must report zero changed"
 depends = ["check"]
 dir = "{{config_root}}/ansible"

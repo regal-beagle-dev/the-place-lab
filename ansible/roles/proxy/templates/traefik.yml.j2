@@ -1,0 +1,39 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: ':80'
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ':443'
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: {{ proxy_acme_email }}
+      storage: /acme/acme.json
+{% if proxy_acme_staging %}
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+{% endif %}
+      dnsChallenge:
+        provider: cloudflare
+        # Public resolvers, so propagation is checked against what Let's
+        # Encrypt will see rather than against the house router.
+        resolvers:
+          - 1.1.1.1:53
+          - 8.8.8.8:53
+
+log:
+  level: INFO
+accessLog: {}

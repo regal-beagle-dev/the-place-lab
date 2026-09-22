@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: place
+    type: file
+    allowUiUpdates: false
+    disableDeletion: true
+    options:
+      path: /etc/grafana/dashboards

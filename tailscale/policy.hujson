@@ -1,0 +1,102 @@
+// Tailnet access policy
+{
+	// Invited family become autogroup:member, which
+	// will reach the lab and nothing else.
+	"groups": {
+		"group:owner": ["curtisim0@github"],
+	},
+
+	// Tailnet addresses, so the tests below can name machines. Tailscale does
+	// not resolve device names inside a policy file - only what is declared here.
+	"hosts": {
+		"blackwing-prod":    "100.65.123.84",
+		"blackwing-staging": "100.95.16.42",
+		"dagobah":           "100.97.30.64",
+		"yavin":             "100.123.46.21",
+	},
+
+	// Define the tags which can be applied to devices and by which users.
+	// Declaring a tag changes no traffic - it only says the tag exists and who
+	// may hand it out.
+	// tag:prod is for machines holding data that must stay separate from the
+	// lab. Nothing grants tag:lab or tag:staging a path to them, in either
+	// direction, so a compromised lab node cannot reach them at all.
+	"tagOwners": {
+		"tag:prod":    ["curtisim0@github"],
+		"tag:staging": ["curtisim0@github"],
+		"tag:lab":     ["curtisim0@github"],
+	},
+
+	// kejim advertises only .200-.207 - kuat, byss, kejim, endor. Approving it
+	// here means re-authing kejim never needs a manual click. The whole /24
+	// would route tailnet traffic to dagobah at .27 and defeat the tags above.
+	"autoApprovers": {
+		"routes": {
+			"192.168.18.200/29": ["tag:lab"],
+		},
+	},
+
+	// Define grants that govern access for users, groups, autogroups, tags,
+	// Tailscale IP addresses, and subnet ranges.
+	"grants": [
+		// my device reach everything.
+		{"src": ["group:owner"], "dst": ["*"], "ip": ["*"]},
+
+		// Client machines talk among themselves. Tagging strips a device's user
+		// owner, so without this the nightly backup from blackwing-prod to
+		// dagobah stops the moment this lands.
+		{"src": ["tag:prod"], "dst": ["tag:prod"], "ip": ["*"]},
+
+		// Anyone with a login here reaches lab services, by tailnet address
+		{"src": ["autogroup:member"], "dst": ["tag:lab", "192.168.18.200/29"], "ip": ["*"]},
+
+		{"src": ["tag:lab"], "dst": ["tag:lab"], "ip": ["*"]},
+
+		// tag:staging appears as a source nowhere, so staging initiates nothing.
+	],
+
+	// Define postures that will be applied to all rules without any specific
+	// srcPosture definition.
+	// "defaultSrcPosture": [
+	//      "posture:anyMac",
+	// ],
+
+	// Define device posture rules requiring devices to meet
+	// certain criteria to access parts of your system.
+	// "postures": {
+	//      // Require devices running macOS, a stable Tailscale
+	//      // version and auto update enabled for Tailscale.
+	// 	"posture:autoUpdateMac": [
+	// 	    "node:os == 'macos'",
+	// 	    "node:tsReleaseTrack == 'stable'",
+	// 	    "node:tsAutoUpdate",
+	// 	],
+	//      // Require devices running macOS and a stable
+	//      // Tailscale version.
+	// 	"posture:anyMac": [
+	// 	    "node:os == 'macos'",
+	// 	    "node:tsReleaseTrack == 'stable'",
+	// 	],
+	// },
+
+	// Define users and devices that can use Tailscale SSH.
+	"ssh": [
+		// Allow all users to SSH into their own devices in check mode.
+		// Comment this section out if you want to define specific restrictions.
+		{
+			"action": "check",
+			"src":    ["autogroup:member"],
+			"dst":    ["autogroup:self"],
+			"users":  ["autogroup:nonroot", "root"],
+		},
+	],
+
+	// Validated on save, so a policy that would break the backup path or lock
+	// the owner out refuses to save at all.
+	"tests": [
+		{"src": "curtisim0@github", "accept": ["blackwing-prod:22", "dagobah:22"]},
+		{"src": "tag:prod", "accept": ["dagobah:22"]},
+		{"src": "tag:staging", "deny": ["dagobah:22", "blackwing-prod:22"]},
+		{"src": "tag:lab", "deny": ["dagobah:22", "blackwing-prod:22", "yavin:22"]},
+	],
+}

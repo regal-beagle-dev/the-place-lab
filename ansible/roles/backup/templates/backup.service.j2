@@ -1,0 +1,16 @@
+[Unit]
+Description=Offsite backup to Backblaze B2
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/restic/env
+Nice=10
+IOSchedulingClass=idle
+# +%} keeps the line break Ansible's trim_blocks would swallow, which joins the
+# next directive onto the end of this command.
+ExecStartPre=/usr/local/bin/place-dump-check {{ backup_path }}/backups {{ backup_database_max_age_hours }}
+ExecStart=/usr/bin/restic backup {{ backup_path }}{% for path in backup_excludes %} --exclude {{ path }}{% endfor %}{% if backup_upload_limit %} --limit-upload {{ backup_upload_limit }}{% endif +%}
+ExecStart=/usr/bin/restic forget --prune{% for period, count in backup_keep.items() %} --keep-{{ period }} {{ count }}{% endfor +%}
+ExecStartPost=/usr/local/bin/place-backup-mark

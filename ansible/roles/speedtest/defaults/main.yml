@@ -1,0 +1,8 @@
+---
+speedtest_version: 1.2.0
+speedtest_checksum: sha256:5690596c54ff9bed63fa3732f818a05dbc2db19ad36ed68f21ca5f64d5cfeeb7
+speedtest_root: "/opt/speedtest-{{ speedtest_version }}"
+
+# Each run saturates the connection for about twenty seconds. Hourly answers
+# whether the bandwidth is there; outages and latency are blackbox's job.
+speedtest_on_calendar: hourly

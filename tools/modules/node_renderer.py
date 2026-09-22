@@ -46,7 +46,11 @@ class NodeRenderer:
             )
         inventory = {
             "all": {
-                "vars": {"ansible_user": self.roster.admin_user},
+                "vars": {
+                    "ansible_user": self.roster.admin_user,
+                    "place_domain": self.roster.domain,
+                    "place_gateway": self.roster.gateway,
+                },
                 "children": groups,
             }
         }

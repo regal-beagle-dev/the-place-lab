@@ -1,0 +1,20 @@
+---
+proxy_root: /opt/proxy
+proxy_traefik_version: v3.7.13
+proxy_acme_email: curtis@ross.place
+
+# Let's Encrypt allows five identical certificates a week. Flip this on while
+# shaking out the DNS challenge so a bad run cannot lock out the real one.
+proxy_acme_staging: false
+
+proxy_services:
+  - name: home
+    url: http://splash
+  # Immich lives on the storage node, so the backend is a LAN hop rather
+  # than a loopback one. The address comes from the roster, not from here.
+  - name: photos
+    url: "http://{{ hostvars['byss'].ansible_host }}:2283"
+  # Grafana is in its own compose project, so Traefik cannot reach it by
+  # container name the way it reaches splash; it goes through the host port.
+  - name: grafana
+    url: "http://{{ hostvars['kejim'].ansible_host }}:3000"

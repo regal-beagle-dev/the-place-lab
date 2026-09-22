@@ -1,0 +1,15 @@
+[Unit]
+Description=Prometheus and Grafana
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory={{ monitoring_root }}
+ExecStart=/usr/bin/docker compose up --detach --wait
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

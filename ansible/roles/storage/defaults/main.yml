@@ -1,0 +1,20 @@
+---
+# 8GiB. ZFS defaults the ARC to half of RAM, which on a 15GiB box is 7.5GiB it
+# takes without asking - and it is slow to hand back when a VM wants it.
+storage_zfs_arc_max: 8589934592
+
+storage_datasets:
+  - name: tank/k8s
+  - name: tank/media
+  - name: tank/hangar
+  # recordsize is the ceiling on block size
+  - name: tank/photos
+    properties:
+      recordsize: 1M
+    snapshot: true
+
+# sanoid
+storage_snapshot_policy:
+  hourly: 24
+  daily: 30
+  monthly: 3

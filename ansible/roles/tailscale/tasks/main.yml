@@ -1,0 +1,55 @@
+---
+- name: Fetch the Tailscale signing key
+  ansible.builtin.get_url:
+    url: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_facts['distribution_release'] }}.noarmor.gpg"
+    dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+    mode: "0644"
+
+- name: Add the Tailscale apt repository
+  ansible.builtin.template:
+    src: tailscale.sources.j2
+    dest: /etc/apt/sources.list.d/tailscale.sources
+    mode: "0644"
+  register: tailscale_repo
+
+- name: Install Tailscale
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+    update_cache: "{{ tailscale_repo.changed }}"
+
+# A subnet router forwards packets addressed to machines other than itself,
+# which the kernel drops out of the box.
+- name: Allow forwarding on the subnet router
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-tailscale.conf
+    content: |
+      net.ipv4.ip_forward = 1
+      net.ipv6.conf.all.forwarding = 1
+    mode: "0644"
+  when: tailscale_routes | length > 0
+  notify: Reload sysctl
+
+- name: Enable tailscaled
+  ansible.builtin.systemd_service:
+    name: tailscaled
+    enabled: true
+    state: started
+
+- name: Read the Tailscale state
+  ansible.builtin.command: tailscale status --json
+  register: tailscale_state
+  changed_when: false
+  failed_when: false
+
+# --accept-dns=false because base already gives every node the fleet in
+# /etc/hosts, and letting Tailscale rewrite resolv.conf on a box whose
+# networking we manage is a surprise waiting to happen.
+- name: Join the tailnet
+  ansible.builtin.command: >-
+    tailscale up
+    --authkey={{ tailscale_authkey }}
+    --advertise-tags={{ tailscale_tags }}
+    --accept-dns=false
+    {% if tailscale_routes %}--advertise-routes={{ tailscale_routes | join(',') }}{% endif %}
+  when: tailscale_state.stdout is not search('"BackendState"\s*:\s*"Running"')

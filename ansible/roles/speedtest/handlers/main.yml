@@ -1,0 +1,6 @@
+---
+- name: Restart the speedtest timer
+  ansible.builtin.systemd_service:
+    name: speedtest.timer
+    state: restarted
+    daemon_reload: true

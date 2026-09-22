@@ -1,0 +1,11 @@
+{% for dataset in storage_datasets if dataset.snapshot | default(false) %}
+[{{ dataset.name }}]
+  use_template = place
+{% endfor %}
+
+[template_place]
+{% for period, keep in storage_snapshot_policy.items() %}
+  {{ period }} = {{ keep }}
+{% endfor %}
+  autosnap = yes
+  autoprune = yes

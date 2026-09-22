@@ -1,0 +1,33 @@
+---
+backup_repository: b2:place-lab-primary-bkt01:byss
+backup_path: /tank/photos
+# Named timezone rather than a UTC hour, so this stays 5am local across the
+# daylight-saving boundary - and stays after Immich's 2am dump, which is also
+# Chicago-based, all year.
+backup_on_calendar: "*-*-* 05:00:00 America/Chicago"
+
+# Immich regenerates thumbnails and transcodes from the originals it keeps, so
+# paying to store them offsite buys back nothing a job queue cannot.
+backup_excludes:
+  - /tank/photos/thumbs
+  - /tank/photos/encoded-video
+
+backup_keep:
+  last: 3
+  daily: 7
+  weekly: 5
+  monthly: 12
+
+
+backup_upload_limit: 2000
+# Immich dumps its own database into the library on its own schedule, with the
+# app and Postgres versions in the filename. The backup refuses to run if one
+# has not appeared within this window.
+backup_database_max_age_hours: 48
+
+backup_environment:
+  RESTIC_CACHE_DIR: /var/cache/restic
+  RESTIC_REPOSITORY: "{{ backup_repository }}"
+  RESTIC_PASSWORD: "{{ backup_restic_password }}"
+  B2_ACCOUNT_ID: "{{ backup_b2_account_id }}"
+  B2_ACCOUNT_KEY: "{{ backup_b2_account_key }}"
