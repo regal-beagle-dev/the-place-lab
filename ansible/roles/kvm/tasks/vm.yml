@@ -75,3 +75,11 @@
         timeout: 300
       delegate_to: localhost
       become: false
+
+    # Trust on first use, done by the laptop that will manage it rather than by hand.
+    - name: Learn the host key of {{ vm.name }}
+      ansible.builtin.known_hosts:
+        name: "{{ vm.address }}"
+        key: "{{ lookup('pipe', 'ssh-keyscan -t ed25519 ' + vm.address) }}"
+      delegate_to: localhost
+      become: false

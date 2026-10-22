@@ -13,6 +13,13 @@
   failed_when: false
   changed_when: true
 
+- name: Forget its host key
+  ansible.builtin.known_hosts:
+    name: "{{ (place_vms | selectattr('name', 'eq', vm) | first).address }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+
 - name: Remove its disk and seed
   ansible.builtin.file:
     path: "{{ item }}"
