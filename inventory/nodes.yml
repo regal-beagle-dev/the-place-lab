@@ -79,6 +79,19 @@ nodes:
     address: 192.168.18.214
     status: planned
 
+  - name: novahn
+    kind: virtual
+    role: bay
+    hypervisor: byss
+    os: Ubuntu 24.04 LTS
+    address: 192.168.18.215
+    mac: 52:54:00:d1:ff:ed
+    interface: enp1s0
+    memory: 6G
+    vcpus: 4
+    disk: 60G
+    status: planned
+
   - name: yavin
     kind: foreign
     role: workstation
