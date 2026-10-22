@@ -1,0 +1,27 @@
+---
+- name: Only the hypervisor that hosts {{ vm }} acts
+  ansible.builtin.meta: end_host
+  when: vm not in (place_vms | default([]) | map(attribute='name') | list)
+
+- name: Stop {{ vm }}
+  ansible.builtin.command: "virsh destroy {{ vm }}"
+  failed_when: false
+  changed_when: true
+
+- name: Forget {{ vm }}
+  ansible.builtin.command: "virsh undefine {{ vm }}"
+  failed_when: false
+  changed_when: true
+
+- name: Destroy its disk
+  ansible.builtin.command: "zfs destroy {{ kvm_dataset }}/{{ vm }}"
+  failed_when: false
+  changed_when: true
+
+- name: Remove its seed
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ kvm_root }}/seed/{{ vm }}"
+    - "{{ kvm_root }}/seed/{{ vm }}.iso"

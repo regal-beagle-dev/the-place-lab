@@ -1,4 +1,11 @@
 ---
+- name: Build the virtual machines
+  hosts: all
+  become: true
+  gather_facts: false
+  roles:
+    - kvm
+
 - name: Apply the fleet
   hosts: all
   become: true

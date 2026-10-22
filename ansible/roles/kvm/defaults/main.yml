@@ -1,0 +1,10 @@
+---
+kvm_dataset: tank/vm
+kvm_root: /tank/vm
+
+# Pinned by checksum: get_url refuses a moved upstream, so a bump is deliberate.
+kvm_images:
+  Ubuntu 24.04 LTS:
+    url: https://cloud-images.ubuntu.com/noble/20261017/noble-server-cloudimg-amd64.img
+    sha256: 04e8f2461a16a44e78a370284471f29616cdd9baf1893df25807b71f985b6c94
+    variant: ubuntu24.04

@@ -1,0 +1,80 @@
+---
+- name: Check whether {{ vm.name }} exists
+  ansible.builtin.command: "virsh dominfo {{ vm.name }}"
+  register: kvm_domain
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+# A defined machine is never touched again; destroy.yml is the way to start over.
+- name: Build {{ vm.name }}
+  when: kvm_domain.rc != 0
+  vars:
+    image: "{{ kvm_images[vm.os] }}"
+    image_path: "{{ kvm_root }}/images/{{ image.url | basename }}"
+    zvol: "{{ kvm_dataset }}/{{ vm.name }}"
+    seed: "{{ kvm_root }}/seed/{{ vm.name }}"
+  block:
+    - name: Fetch the cloud image
+      ansible.builtin.get_url:
+        url: "{{ image.url }}"
+        dest: "{{ image_path }}"
+        checksum: "sha256:{{ image.sha256 }}"
+        mode: "0644"
+
+    - name: Create the disk
+      ansible.builtin.command: "zfs create -s -V {{ vm.disk }} {{ zvol }}"
+      args:
+        creates: "/dev/zvol/{{ zvol }}"
+
+    - name: Wait for the disk device
+      ansible.builtin.wait_for:
+        path: "/dev/zvol/{{ zvol }}"
+
+    - name: Write the image onto the disk
+      ansible.builtin.command: "qemu-img convert -O raw {{ image_path }} /dev/zvol/{{ zvol }}"
+      changed_when: true
+
+    - name: Create the seed directory
+      ansible.builtin.file:
+        path: "{{ seed }}"
+        state: directory
+        mode: "0755"
+
+    - name: Write the first-boot configuration
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "{{ seed }}/{{ item }}"
+        mode: "0644"
+      loop: [user-data, meta-data]
+
+    - name: Build the seed image
+      ansible.builtin.command: "cloud-localds {{ seed }}.iso {{ seed }}/user-data {{ seed }}/meta-data"
+      changed_when: true
+
+    # macvtap in bridge mode puts the machine on the LAN as itself, with its own
+    # reservation, and leaves the hypervisor's netplan alone. The one cost is that
+    # the hypervisor cannot reach its own guests, which nothing here needs.
+    - name: Define and start {{ vm.name }}
+      ansible.builtin.command: >-
+        virt-install
+        --name {{ vm.name }}
+        --memory {{ (vm.memory | human_to_bytes) // 1048576 }}
+        --vcpus {{ vm.vcpus }}
+        --import
+        --disk path=/dev/zvol/{{ zvol }},bus=virtio,format=raw
+        --disk path={{ seed }}.iso,device=cdrom
+        --network type=direct,source={{ place_interface }},source_mode=bridge,model=virtio,mac={{ vm.mac }}
+        --os-variant {{ image.variant }}
+        --graphics none
+        --noautoconsole
+        --autostart
+      changed_when: true
+
+    - name: Wait for {{ vm.name }} to answer ssh
+      ansible.builtin.wait_for:
+        host: "{{ vm.address }}"
+        port: 22
+        timeout: 300
+      delegate_to: localhost
+      become: false

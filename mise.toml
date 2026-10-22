@@ -42,3 +42,8 @@ description = "Apply the fleet definition; twice in a row must report zero chang
 depends = ["check"]
 dir = "{{config_root}}/ansible"
 run = "uv run ansible-playbook playbooks/site.yml"
+
+[tasks.destroy]
+description = "Tear down a virtual machine and its disk: mise run destroy -- novahn"
+dir = "{{config_root}}/ansible"
+run = "uv run ansible-playbook playbooks/destroy.yml -e vm={{arg(name='vm')}}"

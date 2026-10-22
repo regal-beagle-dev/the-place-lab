@@ -1,0 +1,46 @@
+---
+- name: Leave nodes that host nothing alone
+  ansible.builtin.meta: end_host
+  when: place_vms | default([]) | length == 0
+
+- name: Install the hypervisor
+  ansible.builtin.apt:
+    name:
+      - qemu-system-x86
+      - libvirt-daemon-system
+      - libvirt-clients
+      - virtinst
+      - cloud-image-utils
+      - qemu-utils
+    state: present
+
+- name: Let the admin user drive libvirt
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: libvirt
+    append: true
+
+- name: Create the dataset
+  ansible.builtin.command: "zfs create {{ kvm_dataset }}"
+  args:
+    creates: "{{ kvm_root }}"
+
+- name: Create the image and seed directories
+  ansible.builtin.file:
+    path: "{{ kvm_root }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: [images, seed]
+
+# A machine trusts exactly the keys its hypervisor trusts.
+- name: Read the keys the hypervisor trusts
+  ansible.builtin.slurp:
+    src: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+  register: kvm_authorized_keys
+
+- name: Build each machine
+  ansible.builtin.include_tasks: vm.yml
+  loop: "{{ place_vms }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
