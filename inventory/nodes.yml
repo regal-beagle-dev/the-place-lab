@@ -103,7 +103,7 @@ nodes:
     memory: 3G
     vcpus: 2
     disk: 100G
-    status: planned
+    status: os-installed
 
   - name: yavin
     kind: foreign

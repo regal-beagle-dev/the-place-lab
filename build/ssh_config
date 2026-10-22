@@ -14,3 +14,7 @@ Host novahn
     HostName 192.168.18.215
     User curtis
 
+Host novacn
+    HostName 192.168.18.216
+    User curtis
+
