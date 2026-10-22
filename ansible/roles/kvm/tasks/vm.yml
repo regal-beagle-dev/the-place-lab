@@ -11,8 +11,8 @@
   when: kvm_domain.rc != 0
   vars:
     image: "{{ kvm_images[vm.os] }}"
-    image_path: "{{ kvm_root }}/images/{{ image.url | basename }}"
-    zvol: "{{ kvm_dataset }}/{{ vm.name }}"
+    image_path: "{{ kvm_root }}/cloud/{{ image.url | basename }}"
+    disk: "{{ kvm_root }}/{{ vm.name }}.qcow2"
     seed: "{{ kvm_root }}/seed/{{ vm.name }}"
   block:
     - name: Fetch the cloud image
@@ -22,17 +22,13 @@
         checksum: "sha256:{{ image.sha256 }}"
         mode: "0644"
 
-    - name: Create the disk
-      ansible.builtin.command: "zfs create -s -V {{ vm.disk }} {{ zvol }}"
+    - name: Create the disk from the image
+      ansible.builtin.command: "qemu-img convert -O qcow2 {{ image_path }} {{ disk }}"
       args:
-        creates: "/dev/zvol/{{ zvol }}"
+        creates: "{{ disk }}"
 
-    - name: Wait for the disk device
-      ansible.builtin.wait_for:
-        path: "/dev/zvol/{{ zvol }}"
-
-    - name: Write the image onto the disk
-      ansible.builtin.command: "qemu-img convert -O raw {{ image_path }} /dev/zvol/{{ zvol }}"
+    - name: Grow the disk
+      ansible.builtin.command: "qemu-img resize {{ disk }} {{ vm.disk }}"
       changed_when: true
 
     - name: Create the seed directory
@@ -62,7 +58,7 @@
         --memory {{ (vm.memory | human_to_bytes) // 1048576 }}
         --vcpus {{ vm.vcpus }}
         --import
-        --disk path=/dev/zvol/{{ zvol }},bus=virtio,format=raw
+        --disk path={{ disk }},bus=virtio,format=qcow2
         --disk path={{ seed }}.iso,device=cdrom
         --network type=direct,source={{ place_interface }},source_mode=bridge,model=virtio,mac={{ vm.mac }}
         --os-variant {{ image.variant }}

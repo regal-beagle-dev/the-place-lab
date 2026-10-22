@@ -13,15 +13,11 @@
   failed_when: false
   changed_when: true
 
-- name: Destroy its disk
-  ansible.builtin.command: "zfs destroy {{ kvm_dataset }}/{{ vm }}"
-  failed_when: false
-  changed_when: true
-
-- name: Remove its seed
+- name: Remove its disk and seed
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
+    - "{{ kvm_root }}/{{ vm }}.qcow2"
     - "{{ kvm_root }}/seed/{{ vm }}"
     - "{{ kvm_root }}/seed/{{ vm }}.iso"

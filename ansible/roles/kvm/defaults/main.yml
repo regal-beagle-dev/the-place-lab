@@ -1,6 +1,13 @@
 ---
-kvm_dataset: tank/vm
-kvm_root: /tank/vm
+kvm_root: /var/lib/libvirt/images
+
+# The installer leaves most of the volume group unallocated. Guests get their own
+# volume so a machine filling its disk cannot fill the hypervisor's root. Empty
+# means the hypervisor has no spare extents and kvm_root lives wherever it is.
+kvm_volume_group: ubuntu-vg
+kvm_volume: vm
+kvm_volume_size: 300G
+kvm_mount_unit: "{{ kvm_root | regex_replace('^/', '') | replace('/', '-') }}.mount"
 
 # Pinned by checksum: get_url refuses a moved upstream, so a bump is deliberate.
 kvm_images:

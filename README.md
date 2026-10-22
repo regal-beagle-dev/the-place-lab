@@ -46,5 +46,5 @@ That step is manual; `mise run reservations` renders the list.
 A VM is a roster entry like any other, plus `hypervisor`, `memory`, `vcpus` and `disk`, a
 MAC of its own and an address from the VM block. Enter its reservation first; the moment its
 status leaves `planned`, `mise run apply` builds it on its hypervisor — a pinned cloud image
-on a ZFS volume, attached straight to the LAN through the hypervisor's NIC — and then
+as its disk, attached straight to the LAN through the hypervisor's NIC — and then
 configures it like every other node. `mise run destroy -- <name>` takes it apart again.
