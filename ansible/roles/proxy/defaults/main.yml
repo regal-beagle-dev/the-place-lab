@@ -20,3 +20,7 @@ proxy_services:
     url: "http://{{ hostvars['kejim'].ansible_host }}:3000"
   - name: nova
     url: "http://{{ hostvars['novahn'].ansible_host }}:8080"
+
+# Path rules under a service, keyed by its name: prefix, url, optional request
+# headers. Kept out of the repository in host_vars/<host>/local.yml.
+proxy_paths: {}

@@ -4,3 +4,6 @@ __pycache__/
 artifact/
 *vault-pass*
 projects/
+
+# Per-host rules that stay on this machine, loaded by Ansible but never committed.
+ansible/playbooks/host_vars/*/local.yml
