@@ -7,8 +7,9 @@
   check_mode: false
 
 # A defined machine is never touched again; destroy.yml is the way to start over.
+# A dry run that only pretended to prepare the hypervisor cannot preview the build.
 - name: Build {{ vm.name }}
-  when: kvm_domain.rc != 0
+  when: kvm_domain.rc != 0 and not (ansible_check_mode and kvm_dirs is changed)
   vars:
     image: "{{ kvm_images[vm.os] }}"
     image_path: "{{ kvm_root }}/cloud/{{ image.url | basename }}"
