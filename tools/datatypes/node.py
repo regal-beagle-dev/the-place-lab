@@ -20,6 +20,9 @@ class Node:
     hypervisor: str | None = None
     location: str | None = None
     rack: str | None = None
+    memory: str | None = None
+    vcpus: int | None = None
+    disk: str | None = None
 
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> "Node":
