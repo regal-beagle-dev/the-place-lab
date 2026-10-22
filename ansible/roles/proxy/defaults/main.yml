@@ -18,3 +18,5 @@ proxy_services:
   # container name the way it reaches splash; it goes through the host port.
   - name: grafana
     url: "http://{{ hostvars['kejim'].ansible_host }}:3000"
+  - name: nova
+    url: "http://{{ hostvars['novahn'].ansible_host }}:8080"

@@ -17,6 +17,20 @@ http:
         - websecure
       service: {{ service.name }}
       tls: {}
+{# A path router outranks its host router on its own: Traefik ranks rules by length. #}
+{% for path in service.paths | default([]) %}
+{% set child = service.name ~ (path.prefix | replace('/', '-')) %}
+    {{ child }}:
+      rule: Host(`{{ service.name }}.{{ place_domain }}`) && PathPrefix(`{{ path.prefix }}`)
+      entryPoints:
+        - websecure
+      service: {{ child }}
+{% if path.headers is defined %}
+      middlewares:
+        - {{ child }}
+{% endif %}
+      tls: {}
+{% endfor %}
 {% endfor %}
 
   services:
@@ -25,4 +39,26 @@ http:
       loadBalancer:
         servers:
           - url: {{ service.url }}
+{% for path in service.paths | default([]) %}
+    {{ service.name ~ (path.prefix | replace('/', '-')) }}:
+      loadBalancer:
+        servers:
+          - url: {{ path.url }}
 {% endfor %}
+{% endfor %}
+{% set ns = namespace(headers=false) %}
+{% for service in proxy_services %}{% for path in service.paths | default([]) if path.headers is defined %}{% set ns.headers = true %}{% endfor %}{% endfor %}
+{% if ns.headers %}
+
+  middlewares:
+{% for service in proxy_services %}
+{% for path in service.paths | default([]) if path.headers is defined %}
+    {{ service.name ~ (path.prefix | replace('/', '-')) }}:
+      headers:
+        customRequestHeaders:
+{% for name, value in path.headers.items() %}
+          {{ name }}: {{ value }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endif %}
