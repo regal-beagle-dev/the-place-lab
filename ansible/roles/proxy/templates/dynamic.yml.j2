@@ -25,9 +25,14 @@ http:
       entryPoints:
         - websecure
       service: {{ child }}
-{% if path.headers is defined %}
+{% if path.strip | default(false) or path.headers is defined %}
       middlewares:
+{% if path.strip | default(false) %}
+        - {{ child }}-strip
+{% endif %}
+{% if path.headers is defined %}
         - {{ child }}
+{% endif %}
 {% endif %}
       tls: {}
 {% endfor %}
@@ -46,19 +51,28 @@ http:
           - url: {{ path.url }}
 {% endfor %}
 {% endfor %}
-{% set ns = namespace(headers=false) %}
-{% for service in proxy_services %}{% for path in proxy_paths[service.name] | default([]) if path.headers is defined %}{% set ns.headers = true %}{% endfor %}{% endfor %}
-{% if ns.headers %}
+{% set ns = namespace(middlewares=false) %}
+{% for service in proxy_services %}{% for path in proxy_paths[service.name] | default([]) if path.strip | default(false) or path.headers is defined %}{% set ns.middlewares = true %}{% endfor %}{% endfor %}
+{% if ns.middlewares %}
 
   middlewares:
 {% for service in proxy_services %}
-{% for path in proxy_paths[service.name] | default([]) if path.headers is defined %}
-    {{ service.name ~ (path.prefix | replace('/', '-')) }}:
+{% for path in proxy_paths[service.name] | default([]) %}
+{% set child = service.name ~ (path.prefix | replace('/', '-')) %}
+{% if path.strip | default(false) %}
+    {{ child }}-strip:
+      stripPrefix:
+        prefixes:
+          - {{ path.prefix }}
+{% endif %}
+{% if path.headers is defined %}
+    {{ child }}:
       headers:
         customRequestHeaders:
 {% for name, value in path.headers.items() %}
           {{ name }}: {{ value }}
 {% endfor %}
+{% endif %}
 {% endfor %}
 {% endfor %}
 {% endif %}
