@@ -1,0 +1,11 @@
+[Unit]
+Description=Virtual machine images
+
+[Mount]
+What=/dev/{{ kvm_volume_group }}/{{ kvm_volume }}
+Where={{ kvm_root }}
+Type=ext4
+Options=noatime
+
+[Install]
+WantedBy=local-fs.target

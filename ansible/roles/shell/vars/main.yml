@@ -4,3 +4,4 @@ shell_role_color:
   control-plane: red
   hypervisor: cyan
   worker: yellow
+  bay: magenta

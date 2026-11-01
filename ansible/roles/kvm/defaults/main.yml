@@ -1,0 +1,17 @@
+---
+kvm_root: /var/lib/libvirt/images
+
+# The installer leaves most of the volume group unallocated. Guests get their own
+# volume so a machine filling its disk cannot fill the hypervisor's root. Empty
+# means the hypervisor has no spare extents and kvm_root lives wherever it is.
+kvm_volume_group: ubuntu-vg
+kvm_volume: vm
+kvm_volume_size: 300G
+kvm_mount_unit: "{{ kvm_root | regex_replace('^/', '') | replace('/', '-') }}.mount"
+
+# Pinned by checksum: get_url refuses a moved upstream, so a bump is deliberate.
+kvm_images:
+  Ubuntu 24.04 LTS:
+    url: https://cloud-images.ubuntu.com/noble/20261017/noble-server-cloudimg-amd64.img
+    sha256: 04e8f2461a16a44e78a370284471f29616cdd9baf1893df25807b71f985b6c94
+    variant: ubuntu24.04

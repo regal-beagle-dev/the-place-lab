@@ -12,6 +12,7 @@ The rule below means a hostname tells you what a box is and where it physically 
 | physical host | Star Wars planet, ≤6 characters, lowercase | `byss` `kejim` `endor` `kuat` |
 | virtual machine | `<host-planet><NN>`, zero-padded | `byss01` `endor02` |
 | ephemeral VM | `taris<NN>` | `taris01` |
+| project machine | `<codename><role>` | `novahn` |
 | logical (namespace, dataset, pool) | plain and descriptive, unthemed | `bay-example` `tank/hangar` |
 | personal device | Star Wars planet | `yavin` `kashyyyk` |
 

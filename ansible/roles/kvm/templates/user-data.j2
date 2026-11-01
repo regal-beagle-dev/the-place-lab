@@ -1,0 +1,13 @@
+#cloud-config
+hostname: {{ vm.name }}
+fqdn: {{ vm.name }}.{{ place_domain }}
+users:
+  - name: {{ ansible_user }}
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+{% for key in (kvm_authorized_keys.content | b64decode).splitlines() if key.strip() %}
+      - {{ key }}
+{% endfor %}
+ssh_pwauth: false
+package_update: false

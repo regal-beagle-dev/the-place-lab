@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 
-from ..datatypes import AnsibleHost, Roster
+from ..datatypes import AnsibleHost, Roster, VmSpec
 from ..paths import Paths
 
 
@@ -41,9 +41,10 @@ class NodeRenderer:
         groups: dict[str, dict] = {}
         for node in self.roster.managed:
             group = str(node.role).replace("-", "_")
-            groups.setdefault(group, {}).setdefault("hosts", {})[node.name] = (
-                AnsibleHost.of(node).as_dict()
-            )
+            host = AnsibleHost.of(node).as_dict()
+            if vms := self.roster.hosted_by(node.name):
+                host["place_vms"] = [VmSpec.of(vm).as_dict() for vm in vms]
+            groups.setdefault(group, {}).setdefault("hosts", {})[node.name] = host
         inventory = {
             "all": {
                 "vars": {

@@ -6,6 +6,7 @@ class Role(StrEnum):
     CONTROL_PLANE = "control-plane"
     HYPERVISOR = "hypervisor"
     WORKER = "worker"
+    BAY = "bay"
     SWITCH = "switch"
     WORKSTATION = "workstation"
     CONSOLE = "console"

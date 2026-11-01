@@ -51,7 +51,11 @@ class Roster:
 
     @property
     def managed(self) -> Sequence[Node]:
-        return [n for n in self.of_kind(Kind.PHYSICAL) if n.status is not Status.PLANNED]
+        return [
+            n
+            for n in self.of_kind(Kind.PHYSICAL, Kind.VIRTUAL)
+            if n.status is not Status.PLANNED
+        ]
 
     @property
     def addressed(self) -> Sequence[Node]:
@@ -63,4 +67,11 @@ class Roster:
 
     @property
     def reservable(self) -> Sequence[Node]:
-        return self.of_kind(Kind.PHYSICAL, Kind.APPLIANCE)
+        return [n for n in self.of_kind(Kind.PHYSICAL, Kind.APPLIANCE, Kind.VIRTUAL) if n.mac]
+
+    def hosted_by(self, name: str) -> Sequence[Node]:
+        return [
+            n
+            for n in self.of_kind(Kind.VIRTUAL)
+            if n.hypervisor == name and n.status is not Status.PLANNED
+        ]
