@@ -10,6 +10,10 @@ Host endor
     HostName 192.168.18.203
     User curtis
 
+Host ossus
+    HostName 192.168.18.204
+    User curtis
+
 Host novahn
     HostName 192.168.18.215
     User curtis

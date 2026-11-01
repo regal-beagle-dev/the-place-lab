@@ -51,6 +51,18 @@ nodes:
     location: outside-rack
     status: verified
 
+  - name: ossus
+    kind: physical
+    role: hypervisor
+    hardware: HP EliteDesk 800 G4 · i5-8500T · 16GB
+    os: Ubuntu 26.04 LTS
+    address: 192.168.18.204
+    mac: b0:0c:d1:6b:66:13
+    interface: eno1
+    switch_port: P4
+    rack: U5
+    status: verified
+
   - name: byss01
     kind: virtual
     role: worker
