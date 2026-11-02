@@ -16,6 +16,13 @@
     enabled: true
     state: started
 
+# The server install ships them; with no BMC the driver loader fails on every boot.
+- name: Remove the IPMI tools desktop hardware cannot use
+  ansible.builtin.apt:
+    name: [openipmi, ipmitool]
+    state: absent
+    purge: true
+
 - name: Resolve every node by name without DNS
   ansible.builtin.blockinfile:
     path: /etc/hosts
