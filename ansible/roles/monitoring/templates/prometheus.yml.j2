@@ -12,6 +12,7 @@ scrape_configs:
       - targets: ['{{ hostvars[host].ansible_host }}:9100']
         labels:
           instance: {{ host }}
+          role: {{ hostvars[host].place_role }}
 {% endfor %}
 
   - job_name: ping
