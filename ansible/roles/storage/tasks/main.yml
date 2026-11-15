@@ -51,3 +51,28 @@
   ansible.builtin.shell: "echo {{ storage_zfs_arc_max }} > /sys/module/zfs/parameters/zfs_arc_max"
   when: (storage_arc_running.content | b64decode | trim | int) != (storage_zfs_arc_max | int)
   changed_when: true
+
+# zfsutils-linux scrubs every pool on the second Sunday of the month from
+# /etc/cron.d; this only reports when that last finished.
+- name: Install the scrub report
+  ansible.builtin.copy:
+    src: place-scrub-report
+    dest: /usr/local/bin/place-scrub-report
+    mode: "0755"
+
+- name: Install the scrub report units
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
+  loop: [scrub-report.service, scrub-report.timer]
+  register: storage_scrub_units
+  notify: Restart the scrub report timer
+
+- name: Enable the scrub report
+  ansible.builtin.systemd_service:
+    name: scrub-report.timer
+    enabled: true
+    state: started
+    daemon_reload: true
+  when: not (ansible_check_mode and storage_scrub_units is changed)

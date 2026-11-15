@@ -1,0 +1,29 @@
+#!/bin/bash
+# Reports each pool's last completed scrub through node_exporter's textfile collector.
+set -euo pipefail
+
+out=/var/lib/prometheus/node-exporter/zfs_scrub.prom
+lines=()
+
+for pool in $(zpool list -H -o name); do
+    scan=$(zpool status "$pool" | sed -n 's/^ *scan: //p')
+    case "$scan" in
+        "scrub repaired "*" on "*)
+            finished=$(date -d "${scan##* on }" +%s)
+            errors=$(sed -n 's/.* with \([0-9]*\) errors.*/\1/p' <<< "$scan")
+            ;;
+        "none requested")
+            finished=0
+            errors=0
+            ;;
+        *)
+            # A scrub or resilver is running, or was cancelled: the previous report stands.
+            exit 0
+            ;;
+    esac
+    lines+=("place_zfs_last_scrub_timestamp_seconds{zpool=\"$pool\"} $finished")
+    lines+=("place_zfs_scrub_errors{zpool=\"$pool\"} $errors")
+done
+
+printf '%s\n' "${lines[@]}" > "$out.tmp"
+mv "$out.tmp" "$out"
