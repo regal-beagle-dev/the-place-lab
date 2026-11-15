@@ -1,4 +1,33 @@
 ---
+# Grafana shows the mark on every chart, so a change and its effect line up.
+- name: Mark the apply
+  hosts: all
+  gather_facts: false
+  become: false
+  run_once: true
+  tasks:
+    - name: Read the revision being applied
+      ansible.builtin.command: git -C {{ playbook_dir }} describe --always --dirty
+      delegate_to: localhost
+      register: place_revision
+      changed_when: false
+
+    - name: Annotate the dashboards
+      ansible.builtin.uri:
+        url: "http://{{ hostvars[groups['control_plane'][0]].ansible_host }}:3000/api/annotations"
+        method: POST
+        url_username: admin
+        url_password: "{{ hostvars[groups['control_plane'][0]].monitoring_grafana_admin_password }}"
+        force_basic_auth: true
+        body_format: json
+        body:
+          tags: [apply]
+          text: "apply {{ place_revision.stdout }}{% if ansible_limit is defined %} --limit {{ ansible_limit }}{% endif %}"
+      delegate_to: localhost
+      changed_when: true
+      ignore_errors: true
+      when: not ansible_check_mode
+
 - name: Build the virtual machines
   hosts: all
   become: true

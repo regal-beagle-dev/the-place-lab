@@ -24,6 +24,7 @@ Worker VMs are satellites of their host: `byss01`, `endor02`. See [NAMING.md](NA
 mise run render         # regenerate build/
 mise run check          # fail if build/ is stale
 mise run reservations   # for now, addressed entered by hand on Nokia app
+mise run upgrade        # full-upgrade and reboot, one node at a time
 ```
 
 To reach the nodes by name, add to `~/.ssh/config`:
@@ -48,3 +49,12 @@ MAC of its own and an address from the VM block. Enter its reservation first; th
 status leaves `planned`, `mise run apply` builds it on its hypervisor — a pinned cloud image
 as its disk, attached straight to the LAN through the hypervisor's NIC — and then
 configures it like every other node. `mise run destroy -- <name>` takes it apart again.
+
+### Keeping it current
+
+Security fixes arrive nightly through unattended-upgrades and never reboot anything. The
+rest is `mise run upgrade`: a full upgrade and a reboot where one is required, one node at a
+time, bays first and kejim last so the dashboard watches every other node go and come back.
+Run it when the Updates or Reboots tiles say so, about monthly. Container images and Python
+dependencies are pinned in the files Dependabot reads, so a new release arrives as a pull
+request with its notes attached, and merging plus `mise run apply` is the upgrade.

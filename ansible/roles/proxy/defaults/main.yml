@@ -1,6 +1,5 @@
 ---
 proxy_root: /opt/proxy
-proxy_traefik_version: v3.7.13
 proxy_acme_email: curtis@ross.place
 
 # Let's Encrypt allows five identical certificates a week. Flip this on while

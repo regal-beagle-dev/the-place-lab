@@ -15,7 +15,26 @@
     "to": "now"
   },
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "#898781",
+        "name": "Applies",
+        "target": {
+          "type": "tags",
+          "tags": [
+            "apply"
+          ],
+          "limit": 100,
+          "matchAny": false
+        }
+      }
+    ]
   },
   "templating": {
     "list": []
