@@ -79,3 +79,23 @@
     name: ssh.socket
     enabled: true
     state: started
+
+- name: Set this node's kernel parameters
+  ansible.builtin.copy:
+    dest: /etc/default/grub.d/10-place.cfg
+    content: |
+      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT {{ base_kernel_parameters | join(' ') }}"
+    mode: "0644"
+  when: base_kernel_parameters | length > 0
+  notify: Update grub
+
+# A frozen node reboots itself and leaves a crash dump instead of sitting dead
+# until someone notices.
+- name: Reboot out of a hard lockup
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/10-place.conf
+    content: |
+      kernel.hardlockup_panic = 1
+      kernel.panic = 10
+    mode: "0644"
+  notify: Apply sysctl

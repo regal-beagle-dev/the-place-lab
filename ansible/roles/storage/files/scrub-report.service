@@ -1,0 +1,6 @@
+[Unit]
+Description=Report the pool's last scrub
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/place-scrub-report

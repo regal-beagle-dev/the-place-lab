@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: docker-compose
+    directories:
+      - /ansible/roles/immich/files
+      - /ansible/roles/monitoring/files
+      - /ansible/roles/proxy/files
+    schedule:
+      interval: weekly
+    groups:
+      immich:
+        patterns: ["ghcr.io/immich-app/immich-*"]
+    ignore:
+      # Immich's release notes name the database image to run; follow them, not Dependabot.
+      - dependency-name: ghcr.io/immich-app/postgres
+
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly

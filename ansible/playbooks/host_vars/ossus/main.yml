@@ -1,0 +1,5 @@
+---
+# Headless: the firmware's GPU probes froze the whole machine within the hour,
+# three boots running (Nov 2026). Keep the driver out.
+base_kernel_parameters:
+  - modprobe.blacklist=i915

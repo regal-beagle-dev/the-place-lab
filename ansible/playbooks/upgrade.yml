@@ -1,0 +1,34 @@
+---
+# Run by hand when the Updates or Reboots tiles say so. One node at a time, the
+# bays first and the control plane last, so the Nodes panel shows each one leave
+# and return and the panel itself is the last thing to blink. A node that comes
+# back with a failed unit stops the run.
+- name: Upgrade the bays
+  hosts: bay
+  become: true
+  serial: 1
+  # Off between drills is not a failure.
+  ignore_unreachable: true
+  roles:
+    - upgrade
+
+- name: Upgrade the storage node
+  hosts: storage
+  become: true
+  serial: 1
+  roles:
+    - upgrade
+
+- name: Upgrade the hypervisors
+  hosts: hypervisor
+  become: true
+  serial: 1
+  roles:
+    - upgrade
+
+- name: Upgrade the control plane
+  hosts: control_plane
+  become: true
+  serial: 1
+  roles:
+    - upgrade

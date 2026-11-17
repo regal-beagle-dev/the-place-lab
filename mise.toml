@@ -47,3 +47,9 @@ run = "uv run ansible-playbook playbooks/site.yml"
 description = "Tear down a virtual machine and its disk: mise run destroy -- novahn"
 dir = "{{config_root}}/ansible"
 run = "uv run ansible-playbook playbooks/destroy.yml -e vm={{arg(name='vm')}}"
+
+[tasks.upgrade]
+description = "Upgrade and reboot the fleet one node at a time; -- --limit narrows it"
+depends = ["check"]
+dir = "{{config_root}}/ansible"
+run = "uv run ansible-playbook playbooks/upgrade.yml"

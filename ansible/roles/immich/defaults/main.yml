@@ -1,5 +1,4 @@
 ---
-immich_version: v3.2.0
 immich_root: /opt/immich
 immich_library: /tank/photos
 immich_timezone: America/Chicago
