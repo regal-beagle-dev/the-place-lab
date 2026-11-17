@@ -962,7 +962,7 @@
       "type": "stat",
       "id": 22,
       "title": "Last reboot",
-      "description": "Age of the youngest boot among the core nodes. A fresh value you did not cause is a crash or a power event.",
+      "description": "Age of the youngest boot among the core nodes.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -995,16 +995,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#d03b3b",
+                "color": "text",
                 "value": null
-              },
-              {
-                "color": "#fab219",
-                "value": 3600
-              },
-              {
-                "color": "#0ca30c",
-                "value": 86400
               }
             ]
           },
@@ -1021,7 +1013,7 @@
           "fields": "",
           "values": false
         },
-        "colorMode": "value",
+        "colorMode": "none",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
