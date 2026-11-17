@@ -35,5 +35,5 @@ services:
 
   blackbox:
     container_name: monitoring_blackbox
-    image: prom/blackbox-exporter:v0.28.0
+    image: prom/blackbox-exporter:v0.29.1
     restart: always
