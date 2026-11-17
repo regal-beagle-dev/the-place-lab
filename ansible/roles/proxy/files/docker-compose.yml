@@ -3,7 +3,7 @@ name: proxy
 services:
   traefik:
     container_name: proxy_traefik
-    image: traefik:v3.7.13
+    image: traefik:v3.7.19
     ports:
       - '80:80'
       - '443:443'
